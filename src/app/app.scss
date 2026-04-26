@@ -12,11 +12,16 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 .anim {
   opacity: 0;
   transform: translateY(32px);
-  transition: opacity 0.7s $ease, transform 0.7s $ease;
+  transition: opacity 0.7s $ease, transform 0.7s $ease, filter 0.7s $ease;
+
+  &.anim--left  { transform: translateX(-48px); }
+  &.anim--scale { transform: scale(0.93) translateY(14px); }
+  &.anim--blur  { transform: translateY(16px); filter: blur(10px); }
 
   &.visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+    filter: none;
   }
 }
 

@@ -62,8 +62,8 @@
       <span class="section__num">01</span>
       <h2 class="section__title">Sobre mí</h2>
     </div>
-    <div class="about anim">
-      <div class="about__text">
+    <div class="about">
+      <div class="about__text anim anim--left">
         <p>
           Desarrollador Full Stack con formación en Administración y Dirección de Empresas.
           Combino la visión técnica del desarrollo de software con la perspectiva estratégica
@@ -76,8 +76,8 @@
         </p>
       </div>
       <div class="about__traits">
-        @for (trait of traits; track trait) {
-          <span class="trait">{{ trait }}</span>
+        @for (trait of traits; track trait; let i = $index) {
+          <span class="trait anim" [style.transition-delay]="(i * 0.15) + 's'">{{ trait }}</span>
         }
       </div>
     </div>
@@ -91,9 +91,9 @@
       <span class="section__num">02</span>
       <h2 class="section__title">Habilidades</h2>
     </div>
-    <div class="skills anim">
-      @for (group of skillGroups; track group.label) {
-        <div class="skill-group">
+    <div class="skills">
+      @for (group of skillGroups; track group.label; let i = $index) {
+        <div class="skill-group anim anim--scale" [style.transition-delay]="(i * 0.15) + 's'">
           <h3 class="skill-group__label">{{ group.label }}</h3>
           <div class="skill-group__items">
             @for (item of group.items; track item) {
@@ -115,7 +115,7 @@
     </div>
     <div class="projects">
       @for (project of projects; track project.name; let i = $index) {
-        <article class="project-card anim" [style.animation-delay]="(i * 0.1) + 's'">
+        <article class="project-card anim anim--scale" [style.transition-delay]="(i * 0.12) + 's'">
           <div class="project-card__top">
             <span class="project-card__icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -148,7 +148,7 @@
       <span class="section__num">04</span>
       <h2 class="section__title">Contacto</h2>
     </div>
-    <div class="contact anim">
+    <div class="contact anim anim--blur">
       <p class="contact__text">
         ¿Tienes un proyecto en mente o quieres saber más sobre mi trabajo?<br>
         Encuéntrame en GitHub o escríbeme directamente.
