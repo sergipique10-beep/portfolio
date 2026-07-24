@@ -22,17 +22,6 @@
         </p>
       </div>
       <div class="about__traits">
-        <model-viewer
-          class="about__logo"
-          src="logo.glb"
-          alt="Logo 3D — trabajo asistido por IA"
-          auto-rotate
-          auto-rotate-delay="0"
-          rotation-per-second="35deg"
-          interaction-prompt="none"
-          disable-zoom
-          shadow-intensity="0"
-          exposure="1.1"></model-viewer>
         @for (trait of traits; track trait; let i = $index) {
           <span class="trait anim" [style.transition-delay]="(i * 0.15) + 's'">{{ trait }}</span>
         }

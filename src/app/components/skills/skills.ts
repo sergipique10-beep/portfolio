@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TechIcon } from '../tech-icon/tech-icon';
 
 interface SkillGroup {
@@ -10,7 +10,8 @@ interface SkillGroup {
   selector: 'app-skills',
   imports: [TechIcon],
   templateUrl: './skills.html',
-  styleUrl: './skills.scss'
+  styleUrl: './skills.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Skills {
   skillGroups: SkillGroup[] = [

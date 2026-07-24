@@ -15,6 +15,22 @@
                 <span class="skill-tag__label">{{ item }}</span>
               </span>
             }
+            @if (group.label === 'Inteligencia Artificial') {
+              <!-- Logo 3D centrado en el hueco a la derecha de los chips de IA. -->
+              <div class="skill-group__logo-slot">
+                <model-viewer
+                  class="skill-group__logo"
+                  src="logo.glb"
+                  alt="Logo 3D — trabajo asistido por IA"
+                  auto-rotate
+                  auto-rotate-delay="0"
+                  rotation-per-second="35deg"
+                  interaction-prompt="none"
+                  disable-zoom
+                  shadow-intensity="0"
+                  exposure="1.1"></model-viewer>
+              </div>
+            }
           </div>
         </div>
       }

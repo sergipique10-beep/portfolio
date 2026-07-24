@@ -23,7 +23,28 @@
 .skill-group__items {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.6rem;
+}
+
+// El hueco a la derecha de los chips: ocupa el espacio sobrante y centra el logo.
+.skill-group__logo-slot {
+  flex: 1 1 auto;
+  min-width: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Logo 3D de IA (model-viewer), centrado en ese hueco.
+.skill-group__logo {
+  width: 5.5rem;
+  height: 5.5rem;
+  flex-shrink: 0;
+  background: transparent;
+  pointer-events: none;   // decorativo, sin interacción
+  --poster-color: transparent;
+  filter: drop-shadow(0 6px 18px rgba(212, 175, 55, 0.3));
 }
 
 .skill-tag {
