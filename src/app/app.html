@@ -102,7 +102,10 @@
           <h3 class="skill-group__label">{{ group.label }}</h3>
           <div class="skill-group__items">
             @for (item of group.items; track item) {
-              <span class="skill-tag">{{ item }}</span>
+              <span class="skill-tag">
+                <ng-container [ngTemplateOutlet]="techIconTpl" [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
+                <span class="skill-tag__label">{{ item }}</span>
+              </span>
             }
           </div>
         </div>
@@ -137,7 +140,9 @@
           <p class="project-card__desc">{{ project.description }}</p>
           <div class="project-card__tags">
             @for (tag of project.tags; track tag) {
-              <span class="project-tag">{{ tag }}</span>
+              <span class="tech" [title]="tag" [attr.aria-label]="tag">
+                <ng-container [ngTemplateOutlet]="techIconTpl" [ngTemplateOutletContext]="{ $implicit: tag }"></ng-container>
+              </span>
             }
           </div>
         </article>
@@ -153,7 +158,15 @@
       <span class="section__num">04</span>
       <h2 class="section__title">Contacto</h2>
     </div>
-    <div class="contact anim anim--blur">
+    <div class="contact__grid">
+      <div class="contact__visual anim anim--scale">
+        <iframe
+          src="https://my.spline.design/discover-ykWHnzKsRTDb2Jb0W9UOvgm2/"
+          title="Diseño 3D interactivo"
+          loading="lazy"
+          frameborder="0"></iframe>
+      </div>
+      <div class="contact anim anim--blur">
       <p class="contact__text">
         ¿Tienes un proyecto en mente o quieres saber más sobre mi trabajo?<br>
         Encuéntrame en GitHub o escríbeme directamente.
@@ -175,9 +188,32 @@
           sergipique10&#64;gmail.com
         </a>
       </div>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- Plantilla de icono de tecnología: logo de Devicon o SVG genérico -->
+<ng-template #techIconTpl let-name>
+  @if (techIcon(name); as cls) {
+    <i class="{{ cls }} tech__logo" aria-hidden="true"></i>
+  } @else {
+    @switch (name) {
+      @case ('SQL') {
+        <svg class="tech__logo tech__logo--svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <ellipse cx="12" cy="5" rx="8" ry="3"/>
+          <path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/>
+          <path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
+        </svg>
+      }
+      @default {
+        <svg class="tech__logo tech__logo--svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 8l-5 4 5 4M15 8l5 4-5 4"/>
+        </svg>
+      }
+    }
+  }
+</ng-template>
 
 <!-- FOOTER -->
 <footer class="footer">

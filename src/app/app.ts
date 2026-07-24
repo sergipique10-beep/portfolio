@@ -1,4 +1,5 @@
 import { Component, signal, AfterViewInit, OnDestroy, HostListener } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 
 interface Project {
   name: string;
@@ -14,7 +15,7 @@ interface SkillGroup {
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [NgTemplateOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -63,6 +64,30 @@ export class App implements AfterViewInit, OnDestroy {
   ];
 
   traits = ['Metódico', 'Organizado', 'Proactivo'];
+
+  // Mapea cada tecnología a su clase de Devicon (con color de marca).
+  // Las que no tienen logo de marca (SQL, API REST) usan un SVG genérico.
+  private techIcons: Record<string, string> = {
+    'Angular': 'devicon-angular-plain colored',
+    'React': 'devicon-react-original colored',
+    'TypeScript': 'devicon-typescript-plain colored',
+    'JavaScript': 'devicon-javascript-plain colored',
+    'HTML5': 'devicon-html5-plain colored',
+    'CSS': 'devicon-css3-plain colored',
+    'SCSS': 'devicon-sass-original colored',
+    'SCSS / CSS3': 'devicon-sass-original colored',
+    'RxJS': 'devicon-rxjs-plain colored',
+    'Node.js': 'devicon-nodejs-plain colored',
+    'Git / GitHub': 'devicon-git-plain colored',
+    'Figma': 'devicon-figma-plain colored',
+    'VS Code': 'devicon-vscode-plain colored',
+    'Firebase': 'devicon-firebase-plain colored',
+    'Charts.js': 'devicon-chartjs-plain colored'
+  };
+
+  techIcon(name: string): string | null {
+    return this.techIcons[name] ?? null;
+  }
 
   @HostListener('window:scroll')
   onScroll() {
