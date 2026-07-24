@@ -15,6 +15,10 @@ interface SkillGroup {
 export class Skills {
   skillGroups: SkillGroup[] = [
     {
+      label: 'Inteligencia Artificial',
+      items: ['Claude Code', 'Open Code']
+    },
+    {
       label: 'Frontend',
       items: ['Angular', 'React', 'TypeScript', 'JavaScript', 'HTML5', 'SCSS / CSS3', 'RxJS']
     },

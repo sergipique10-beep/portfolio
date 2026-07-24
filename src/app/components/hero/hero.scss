@@ -107,6 +107,11 @@
   overflow: hidden;
   animation: fadeIn 1.4s $ease 0.4s both;
 
+  // Difumina los bordes de la escena hacia el fondo negro de la web, para que
+  // el orbe no parezca una caja recortada y se funda con el background.
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 42%, #000 42%, transparent 78%);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 42%, #000 42%, transparent 78%);
+
   // Resplandor detrás del orbe, con los acentos de la paleta (índigo/morado).
   &::before {
     content: "";

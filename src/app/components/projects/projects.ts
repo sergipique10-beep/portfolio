@@ -57,6 +57,14 @@ export class Projects {
       mainTech: 'Angular',
       accent: '#C8A24B',
       url: 'https://github.com/sergipique10-beep/Angular-LOTR'
+    },
+    {
+      name: 'Game4',
+      description: 'Juego multijugador en tiempo real: cliente React (Vite) y servidor Express con WebSockets para la comunicación en directo.',
+      tags: ['React', 'Vite', 'TypeScript', 'Express', 'WebSockets'],
+      mainTech: 'TypeScript',
+      accent: '#3178C6',
+      url: 'https://github.com/sergipique10-beep/game4'
     }
   ];
 }
