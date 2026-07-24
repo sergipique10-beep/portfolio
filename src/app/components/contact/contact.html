@@ -5,13 +5,15 @@
       <h2 class="section__title">Contacto</h2>
     </div>
     <div class="contact__grid">
-      <div class="contact__visual anim anim--scale">
-        <iframe
-          src="https://my.spline.design/discover-ykWHnzKsRTDb2Jb0W9UOvgm2/"
-          title="Diseño 3D interactivo"
-          loading="lazy"
-          frameborder="0"></iframe>
-      </div>
+      @if (showVisual()) {
+        <div class="contact__visual anim anim--scale">
+          <iframe
+            src="https://my.spline.design/discover-ykWHnzKsRTDb2Jb0W9UOvgm2/"
+            title="Diseño 3D interactivo"
+            loading="lazy"
+            frameborder="0"></iframe>
+        </div>
+      }
       <div class="contact anim anim--blur">
         <p class="contact__text">
           ¿Tienes un proyecto en mente o quieres saber más sobre mi trabajo?<br>

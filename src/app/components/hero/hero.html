@@ -21,12 +21,14 @@
         <a class="btn btn--ghost" href="https://github.com/sergipique10" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
-    <div class="hero__visual">
-      <iframe
-        src="https://my.spline.design/reactiveorb-ejErE7ft5GD1VixigMCYDzp6/?v=3"
-        title="Orbe reactivo 3D"
-        loading="lazy"
-        frameborder="0"></iframe>
-    </div>
+    @if (showVisual()) {
+      <div class="hero__visual">
+        <iframe
+          src="https://my.spline.design/reactiveorb-ejErE7ft5GD1VixigMCYDzp6/?v=3"
+          title="Orbe reactivo 3D"
+          loading="lazy"
+          frameborder="0"></iframe>
+      </div>
+    }
   </div>
 </section>
