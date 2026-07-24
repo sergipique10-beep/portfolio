@@ -1,0 +1,27 @@
+<section id="about" class="section">
+  <div class="container">
+    <div class="section__head anim">
+      <span class="section__num">01</span>
+      <h2 class="section__title">Sobre mí</h2>
+    </div>
+    <div class="about">
+      <div class="about__text anim anim--left">
+        <p>
+          Desarrollador Full Stack con formación en Administración y Dirección de Empresas.
+          Combino la visión técnica del desarrollo de software con la perspectiva estratégica
+          del negocio, lo que me permite crear soluciones que aportan valor real.
+        </p>
+        <p>
+          Especializado en el ecosistema Angular, con experiencia en React y conocimientos
+          de backend. Apasionado por las interfaces limpias, el código bien estructurado
+          y los proyectos que tienen impacto.
+        </p>
+      </div>
+      <div class="about__traits">
+        @for (trait of traits; track trait; let i = $index) {
+          <span class="trait anim" [style.transition-delay]="(i * 0.15) + 's'">{{ trait }}</span>
+        }
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,45 @@
+@use 'tokens' as *;
+
+// El logo de tecnología se renderiza dentro de este componente, así que su
+// tamaño según el contexto se resuelve aquí con :host-context (la encapsulación
+// de vista impide que los estilos del padre alcancen el logo del hijo).
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+
+.tech__logo {
+  font-size: 1.15rem;   // escala los iconos de Devicon (fuente)
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tech__logo--svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: $grey-text;    // los genéricos (SQL, WebSockets, IA) en tono neutro
+}
+
+// Chip solo-logo (tags de proyectos): un poco más grande.
+:host-context(.tech) {
+  .tech__logo { font-size: 1.3rem; }
+  .tech__logo--svg { width: 1.3rem; height: 1.3rem; }
+}
+
+// Cabecera de la tarjeta de proyecto: logo grande, teñido con el --accent
+// (custom property que hereda desde .project-card, cruza la encapsulación).
+:host-context(.project-card__header) {
+  .tech__logo {
+    font-size: 3.4rem;
+    opacity: 0.92;
+    filter: drop-shadow(0 6px 22px color-mix(in srgb, var(--accent, #6366f1) 55%, transparent));
+    transform: scale(var(--logo-scale, 1));
+    transition: transform 0.3s $ease;
+  }
+
+  .tech__logo--svg {
+    width: 3.4rem;
+    height: 3.4rem;
+    color: var(--accent, #{$grey-text});
+  }
+}

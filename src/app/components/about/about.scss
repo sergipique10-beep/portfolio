@@ -1,0 +1,40 @@
+@use 'tokens' as *;
+
+.about {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.about__text {
+  p {
+    color: $grey-text;
+    line-height: 1.8;
+    font-size: 1rem;
+
+    &:not(:last-child) { margin-bottom: 1.25rem; }
+  }
+}
+
+.about__traits {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.trait {
+  font-family: $font-head;
+  font-size: 2rem;
+  font-weight: 600;
+  color: $grey-border;
+  letter-spacing: -0.03em;
+  transition: color 0.3s;
+
+  &:hover { color: $white; }
+}

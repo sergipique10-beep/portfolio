@@ -1,0 +1,110 @@
+@use 'tokens' as *;
+
+.projects {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5px;
+  background: $grey-border;
+  border: 1px solid $grey-border;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-card {
+  background: $black;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: background 0.3s $ease;
+
+  &:hover {
+    background: #0d0d0d;
+
+    .project-card__name { color: $white; }
+    // El logo grande de la cabecera vive dentro de <app-tech-icon>; se agranda
+    // vía esta custom property, que hereda hasta el hijo cruzando la encapsulación.
+    .project-card__header { --logo-scale: 1.08; }
+  }
+}
+
+.project-card__header {
+  position: relative;
+  height: 130px;
+  // Sangra hasta los bordes de la tarjeta (padding 2.5rem)
+  margin: -2.5rem -2.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid $grey-border;
+  background:
+    radial-gradient(circle at 50% 135%, color-mix(in srgb, var(--accent, #6366f1) 40%, transparent), transparent 68%),
+    linear-gradient(135deg, #0e0e0e, #151515);
+}
+
+.project-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.project-card__icon {
+  color: $grey-mid;
+}
+
+.project-card__link {
+  color: $grey-mid;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s, transform 0.2s;
+
+  &:hover {
+    color: $white;
+    transform: translate(2px, -2px);
+  }
+}
+
+.project-card__name {
+  font-family: $font-head;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.2s;
+}
+
+.project-card__desc {
+  font-size: 0.875rem;
+  color: $grey-text;
+  line-height: 1.7;
+  flex: 1;
+}
+
+.project-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+// Chip solo-logo (el tamaño del logo interior lo ajusta tech-icon vía :host-context).
+.tech {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid $grey-border;
+  border-radius: 4px;
+  transition: border-color 0.2s $ease, transform 0.2s $ease, background 0.2s $ease;
+
+  &:hover {
+    border-color: $grey-mid;
+    background: $grey-dim;
+    transform: translateY(-2px);
+  }
+}

@@ -1,0 +1,23 @@
+<section id="skills" class="section section--dark">
+  <div class="container">
+    <div class="section__head anim">
+      <span class="section__num">02</span>
+      <h2 class="section__title">Habilidades</h2>
+    </div>
+    <div class="skills">
+      @for (group of skillGroups; track group.label; let i = $index) {
+        <div class="skill-group anim anim--scale" [style.transition-delay]="(i * 0.15) + 's'">
+          <h3 class="skill-group__label">{{ group.label }}</h3>
+          <div class="skill-group__items">
+            @for (item of group.items; track item) {
+              <span class="skill-tag">
+                <app-tech-icon [name]="item"></app-tech-icon>
+                <span class="skill-tag__label">{{ item }}</span>
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

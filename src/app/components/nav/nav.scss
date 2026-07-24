@@ -1,0 +1,113 @@
+@use 'tokens' as *;
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2.5rem;
+  transition: all 0.3s $ease;
+
+  &--scrolled {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid $grey-border;
+    padding: 1rem 2.5rem;
+  }
+}
+
+.nav__logo {
+  font-family: $font-head;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: $white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover { opacity: 0.6; }
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+  button {
+    background: none;
+    border: none;
+    color: $grey-text;
+    font-size: 0.875rem;
+    font-weight: 400;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+
+    &:hover { color: $white; }
+  }
+}
+
+.nav__gh {
+  color: $grey-text;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+
+  &:hover { color: $white; }
+}
+
+.nav__burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+
+  span {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: $white;
+    transition: all 0.3s $ease;
+    transform-origin: center;
+
+    &:nth-child(1).open { transform: rotate(45deg) translate(4px, 4px); }
+    &:nth-child(2).open { opacity: 0; }
+    &:nth-child(3).open { transform: rotate(-45deg) translate(4px, -4px); }
+  }
+}
+
+@media (max-width: 700px) {
+  .nav__burger { display: flex; }
+
+  .nav__links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: $black;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.5rem;
+    font-size: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s $ease;
+
+    &--open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    button { font-size: 1.5rem; color: $white; }
+  }
+}

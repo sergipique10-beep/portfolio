@@ -1,0 +1,38 @@
+<section id="projects" class="section">
+  <div class="container">
+    <div class="section__head anim">
+      <span class="section__num">03</span>
+      <h2 class="section__title">Proyectos</h2>
+    </div>
+    <div class="projects">
+      @for (project of projects; track project.name; let i = $index) {
+        <article class="project-card anim anim--scale" [style.transition-delay]="(i * 0.12) + 's'" [style.--accent]="project.accent">
+          <div class="project-card__header">
+            <app-tech-icon [name]="project.mainTech"></app-tech-icon>
+          </div>
+          <div class="project-card__top">
+            <span class="project-card__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 6h18M3 12h18M3 18h18"/>
+              </svg>
+            </span>
+            <a [href]="project.url" target="_blank" rel="noopener" class="project-card__link" aria-label="Ver en GitHub">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M7 17L17 7M17 7H7M17 7v10"/>
+              </svg>
+            </a>
+          </div>
+          <h3 class="project-card__name">{{ project.name }}</h3>
+          <p class="project-card__desc">{{ project.description }}</p>
+          <div class="project-card__tags">
+            @for (tag of project.tags; track tag) {
+              <span class="tech" [title]="tag" [attr.aria-label]="tag">
+                <app-tech-icon [name]="tag"></app-tech-icon>
+              </span>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>

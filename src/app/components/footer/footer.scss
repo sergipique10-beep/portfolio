@@ -1,0 +1,26 @@
+@use 'tokens' as *;
+
+.footer {
+  border-top: 1px solid $grey-border;
+  padding: 1.75rem 0;
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  span {
+    font-size: 0.8rem;
+    color: $grey-mid;
+  }
+
+  a {
+    color: $grey-mid;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+
+    &:hover { color: $white; }
+  }
+}

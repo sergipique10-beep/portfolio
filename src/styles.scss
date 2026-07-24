@@ -1,3 +1,5 @@
+@use 'tokens' as *;
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -28,3 +30,118 @@ body {
 }
 ::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+// ─── Utilidades compartidas ──────────────────────────────────────────────────
+// Reveal on scroll (el IntersectionObserver de App añade .visible)
+.anim {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s $ease, transform 0.7s $ease, filter 0.7s $ease;
+
+  &.anim--left  { transform: translateX(-48px); }
+  &.anim--scale { transform: scale(0.93) translateY(14px); }
+  &.anim--blur  { transform: translateY(16px); filter: blur(10px); }
+
+  &.visible {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.section {
+  padding: 100px 0;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 58px,
+      rgba(255, 255, 255, 0.025) 58px,
+      rgba(255, 255, 255, 0.025) 60px
+    );
+    animation: sectionGrid 18s linear infinite;
+    pointer-events: none;
+  }
+
+  &--dark {
+    background: #070707;
+  }
+}
+
+@keyframes sectionGrid {
+  from { background-position: 0 0; }
+  to   { background-position: 60px 60px; }
+}
+
+.section__head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+
+.section__num {
+  font-family: $font-head;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $grey-mid;
+  letter-spacing: 0.15em;
+}
+
+.section__title {
+  font-family: $font-head;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.75rem;
+  border-radius: 2px;
+  font-family: $font-head;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.25s $ease;
+
+  &--primary {
+    background: $white;
+    color: $black;
+    border-color: $white;
+
+    &:hover {
+      background: transparent;
+      color: $white;
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: $white;
+    border-color: $grey-border;
+
+    &:hover {
+      border-color: $white;
+    }
+  }
+}

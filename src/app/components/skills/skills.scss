@@ -1,0 +1,44 @@
+@use 'tokens' as *;
+
+.skills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skill-group__label {
+  font-family: $font-head;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: $grey-mid;
+  margin-bottom: 1.25rem;
+}
+
+.skill-group__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid $grey-border;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.825rem;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+  transition: all 0.2s $ease;
+
+  &:hover {
+    border-color: $white;
+    background: $grey-dim;
+  }
+}
