@@ -17,11 +17,15 @@ export class Skills {
   skillGroups: SkillGroup[] = [
     {
       label: 'Inteligencia Artificial',
-      items: ['Claude Code', 'Open Code']
+      items: ['Claude Code', 'Open Code', 'Vertex AI', 'OpenAI', 'RAG', 'Agent Skills']
     },
     {
       label: 'Frontend',
       items: ['Angular', 'React', 'TypeScript', 'Ionic', 'Capacitor', 'SCSS / CSS3', 'RxJS', 'TanStack Query']
+    },
+    {
+      label: 'Datos',
+      items: ['PostgreSQL', 'MySQL', 'MongoDB', 'Supabase', 'Firebase']
     },
     {
       label: 'Backend & Herramientas',

@@ -33,6 +33,9 @@ export class TechIcon {
     'Vite': 'devicon-vitejs-plain colored',
     'Express': 'devicon-express-original',
     'MongoDB': 'devicon-mongodb-plain colored',
+    'PostgreSQL': 'devicon-postgresql-plain colored',
+    'MySQL': 'devicon-mysql-original colored',
+    'Vertex AI': 'devicon-googlecloud-plain colored',
     'Python': 'devicon-python-plain colored',
     'FastAPI': 'devicon-fastapi-plain colored',
     'Supabase': 'devicon-supabase-plain colored'
