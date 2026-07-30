@@ -21,11 +21,11 @@ export class Skills {
     },
     {
       label: 'Frontend',
-      items: ['Angular', 'React', 'TypeScript', 'JavaScript', 'HTML5', 'SCSS / CSS3', 'RxJS']
+      items: ['Angular', 'React', 'TypeScript', 'Ionic', 'Capacitor', 'SCSS / CSS3', 'RxJS', 'TanStack Query']
     },
     {
       label: 'Backend & Herramientas',
-      items: ['Node.js', 'REST APIs', 'SQL', 'Git / GitHub', 'Figma', 'VS Code']
+      items: ['Python', 'FastAPI', 'JWT', 'REST APIs', 'SQL', 'Git / GitHub', 'GitHub Actions', 'Android Studio', 'Figma', 'VS Code']
     }
   ];
 }
