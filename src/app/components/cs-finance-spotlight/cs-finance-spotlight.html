@@ -1,0 +1,200 @@
+<div class="spotlight" [style.--accent]="'#1a6386'">
+  <div class="spotlight__visual-header">
+    <img src="/cs-finance-logo.svg" alt="CS Finance Logo" class="spotlight__logo" />
+  </div>
+
+  <div class="spotlight__header">
+    <div class="spotlight__title-group">
+      <h2 class="spotlight__title">CS Finance — De jugador a emprendedor</h2>
+      <p class="spotlight__subtitle">No hay app móvil de este servicio. Potencial nacional, europeo, latinoamericano.</p>
+      <p class="spotlight__context">Backend Python + Frontend Ionic con chat RAG (Sharky 🦈)</p>
+    </div>
+  </div>
+
+  <!-- Stack visual -->
+  <div class="spotlight__stack">
+    <div class="stack-layer">
+      <h3 class="stack-layer__title">Backend</h3>
+      <div class="stack-layer__items">
+        @for (tech of stack.backend; track tech) {
+          <div class="stack-item">
+            <app-tech-icon [name]="tech" class="stack-item__icon"></app-tech-icon>
+            <span class="stack-item__label">{{ tech }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="stack-layer">
+      <h3 class="stack-layer__title">Datos & Automatización</h3>
+      <div class="stack-layer__items">
+        @for (tech of stack.data; track tech) {
+          <div class="stack-item">
+            <app-tech-icon [name]="tech" class="stack-item__icon"></app-tech-icon>
+            <span class="stack-item__label">{{ tech }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="stack-layer">
+      <h3 class="stack-layer__title">Frontend</h3>
+      <div class="stack-layer__items">
+        @for (tech of stack.frontend; track tech) {
+          <div class="stack-item">
+            <app-tech-icon [name]="tech" class="stack-item__icon"></app-tech-icon>
+            <span class="stack-item__label">{{ tech }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline de fases -->
+  <div class="spotlight__timeline">
+    <h3 class="timeline__title">Fases & Estado</h3>
+    <div class="timeline__items">
+      @for (phase of phases; track phase.phase) {
+        <div class="timeline-item" [class.timeline-item--completed]="phase.status === 'completado'">
+          <div class="timeline-item__badge">
+            @if (phase.status === 'completado') {
+              <span class="badge badge--done">✓</span>
+            } @else {
+              <span class="badge badge--progress">⏳</span>
+            }
+          </div>
+          <div class="timeline-item__content">
+            <span class="timeline-item__phase">Fase {{ phase.phase }}</span>
+            <span class="timeline-item__text">{{ phase.title }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Aprendizajes clave -->
+  <div class="spotlight__learnings">
+    <h3 class="learnings__title">Aprendizajes clave</h3>
+    <div class="learnings__grid">
+      @for (learning of learnings; track learning.title) {
+        <div class="learning-card">
+          <div class="learning-card__icon">{{ learning.icon }}</div>
+          <h4 class="learning-card__title">{{ learning.title }}</h4>
+          <p class="learning-card__desc">{{ learning.desc }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="spotlight__cta">
+    <a [href]="githubUrl" target="_blank" rel="noopener" class="spotlight__link">
+      Ver en GitHub (Backend + Frontend)
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M7 17L17 7M17 7H7M17 7v10"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Technical Details (Expandible) -->
+  <div class="spotlight__technical">
+    <button class="technical__toggle" (click)="toggleTechnicalDetails()">
+      <span class="technical__toggle-text">
+        @if (showTechnicalDetails) {
+          Ocultar detalles técnicos
+        } @else {
+          Ver detalles técnicos profundos
+        }
+      </span>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        [class.technical__icon--open]="showTechnicalDetails"
+      >
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+
+    @if (showTechnicalDetails) {
+      <div class="technical__content">
+        <!-- Endpoints -->
+        <div class="technical-section">
+          <h4 class="technical-section__title">Endpoints</h4>
+          <div class="technical-section__items">
+            @for (endpoint of technicalDetails.endpoints; track endpoint.path) {
+              <div class="endpoint-item">
+                <span class="endpoint-item__method">{{ endpoint.method }}</span>
+                <span class="endpoint-item__path">{{ endpoint.path }}</span>
+                <span class="endpoint-item__desc">{{ endpoint.desc }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Arquitectura -->
+        <div class="technical-section">
+          <h4 class="technical-section__title">Arquitectura de datos & caché</h4>
+          <div class="technical-section__items">
+            @for (arch of technicalDetails.architecture; track arch.title) {
+              <div class="tech-item">
+                <h5 class="tech-item__title">{{ arch.title }}</h5>
+                <p class="tech-item__detail">{{ arch.detail }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Seguridad -->
+        <div class="technical-section">
+          <h4 class="technical-section__title">Securización & decisiones arquitectónicas</h4>
+          <div class="technical-section__items">
+            @for (sec of technicalDetails.security; track sec.title) {
+              <div class="tech-item">
+                <h5 class="tech-item__title">{{ sec.title }}</h5>
+                <p class="tech-item__detail">{{ sec.detail }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Workflow Git -->
+        <div class="technical-section">
+          <h4 class="technical-section__title">Workflow con Claude (Git)</h4>
+          <div class="technical-section__items">
+            @for (wf of technicalDetails.workflow; track wf.title) {
+              <div class="tech-item">
+                <h5 class="tech-item__title">{{ wf.title }}</h5>
+                <p class="tech-item__detail">{{ wf.detail }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Módulos RAG -->
+        <div class="technical-section">
+          <h4 class="technical-section__title">Módulos RAG + Sharky 🦈</h4>
+          <div class="technical-section__items">
+            @for (mod of technicalDetails.modules; track mod.phase) {
+              <div class="module-item">
+                <span class="module-item__phase">Fase {{ mod.phase }}</span>
+                <h5 class="module-item__title">{{ mod.title }}</h5>
+                <p class="module-item__desc">{{ mod.desc }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Key Insight -->
+        <div class="technical-section technical-section--highlight">
+          <p class="technical-insight">
+            <strong>Aprendizaje clave:</strong> {{ technicalDetails.keyInsight }}
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -4,6 +4,7 @@
       <span class="section__num">03</span>
       <h2 class="section__title">Proyectos</h2>
     </div>
+    <app-cs-finance-spotlight class="anim"></app-cs-finance-spotlight>
     <div class="projects">
       @for (project of projects; track project.name; let i = $index) {
         <article class="project-card anim anim--scale" [style.transition-delay]="(i * 0.12) + 's'" [style.--accent]="project.accent">

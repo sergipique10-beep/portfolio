@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TechIcon } from '../tech-icon/tech-icon';
+import { CsFinanceSpotlight } from '../cs-finance-spotlight/cs-finance-spotlight';
 
 interface Project {
   name: string;
@@ -12,7 +13,7 @@ interface Project {
 
 @Component({
   selector: 'app-projects',
-  imports: [TechIcon],
+  imports: [TechIcon, CsFinanceSpotlight],
   templateUrl: './projects.html',
   styleUrl: './projects.scss'
 })
@@ -41,22 +42,6 @@ export class Projects {
       mainTech: 'HTML5',
       accent: '#E34F26',
       url: 'https://github.com/sergipique10-beep/Tulapp2.0'
-    },
-    {
-      name: 'WebSocket Chat',
-      description: 'Chat en tiempo real con WebSockets. Frontend Angular y backend FastAPI con IA (OpenAI) y búsqueda vectorial para respuestas con RAG.',
-      tags: ['Angular', 'FastAPI', 'WebSockets', 'Supabase', 'IA'],
-      mainTech: 'Angular',
-      accent: '#DD0031',
-      url: 'https://github.com/sergipique10-beep/WebSocketChat'
-    },
-    {
-      name: 'LOTR',
-      description: 'Fan site interactivo de El Señor de los Anillos, hecho con Angular y renderizado en servidor (SSR) para SEO y carga rápida.',
-      tags: ['Angular', 'TypeScript', 'RxJS'],
-      mainTech: 'Angular',
-      accent: '#C8A24B',
-      url: 'https://github.com/sergipique10-beep/Angular-LOTR'
     },
     {
       name: 'Game4',
