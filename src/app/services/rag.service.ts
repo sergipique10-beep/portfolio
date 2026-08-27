@@ -79,7 +79,7 @@ export class RagService {
         }
       }
 
-      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2 && w !== 'sergi');
       const scored = allChunks.map((chunk: any) => {
         const contentLower = chunk.content.toLowerCase();
         let score = 0;
@@ -109,23 +109,23 @@ export class RagService {
           }
         }
 
-        // 4. If no match, give base score (so something is always returned)
+        // 4. If no relevant match, give minimal score
         if (score === 0) {
-          // Prefer CV and skills chunks as defaults
-          if (chunk.source === 'cv' || chunk.source === 'skills') {
-            score = 2;
+          // Only prefer CV/skills if user asked something generic
+          // Otherwise return low score so fallback is used
+          if (queryWords.length === 0) {
+            score = 0.5;
           } else {
-            score = 1;
+            score = 0; // No match = use fallback
           }
         }
 
         return { ...chunk, score };
       });
 
-      // Always return top 3, sorted by relevance
-      return scored
-        .sort((a: any, b: any) => b.score - a.score)
-        .slice(0, 3);
+      // Return top 3 only if they have good score, otherwise use fallback
+      const relevant = scored.filter((c: any) => c.score > 0.5);
+      return relevant.length > 0 ? relevant.sort((a: any, b: any) => b.score - a.score).slice(0, 3) : [];
     } catch (error) {
       console.error('[RAG] Keyword extraction error:', error);
       return [];
