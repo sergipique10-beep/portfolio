@@ -161,11 +161,11 @@ export class RagService {
       // 2. Keyword search with category detection
       const queryLower = message.toLowerCase();
       const categories = {
-        hardskills: ['angular', 'react', 'node.js', 'python', 'fastapi', 'express', 'nestjs', 'sql', 'postgresql', 'aws', 'vercel', 'typescript', 'javascript', 'backend', 'frontend', 'stack', 'tecnolog'],
-        softskills: ['liderazgo', 'comunicación', 'adaptabilidad', 'resolución', 'pensamiento crítico', 'collaboración', 'trabajo en equipo', 'personalidad', 'disc', 'eneagrama'],
-        proyectos: ['proyecto', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma', 'herramienta'],
+        hardskills: ['hardskills', 'hard skills', 'angular', 'react', 'node.js', 'node', 'python', 'fastapi', 'express', 'nestjs', 'sql', 'postgresql', 'aws', 'vercel', 'typescript', 'javascript', 'backend', 'frontend', 'stack', 'tecnolog'],
+        softskills: ['softskills', 'soft skills', 'liderazgo', 'comunicación', 'adaptabilidad', 'resolución', 'pensamiento crítico', 'collaboración', 'trabajo en equipo', 'personalidad', 'disc', 'eneagrama', 'habilidades blandas'],
+        proyectos: ['proyecto', 'proyectos', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma', 'herramienta'],
         experiencia: ['trabajo', 'experiencia', 'splai', 'templo esports', 'empresa', 'laboral'],
-        ia: ['inteligencia artificial', 'ia', 'gemini', 'claude', 'llm', 'machine learning', 'generative', 'embeddings'],
+        ia: ['inteligencia artificial', 'ia', 'gemini', 'claude', 'llm', 'machine learning', 'generative', 'embeddings', 'ai'],
       };
 
       let detectedCategory = '';
