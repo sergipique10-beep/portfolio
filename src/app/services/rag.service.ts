@@ -122,42 +122,90 @@ export class RagService {
     }
   }
 
-  // RAG retrieval using Ollama embeddings + vector search
+  // RAG retrieval using keyword search + Ollama for conversational response
   private async ragWithOllama(message: string): Promise<string> {
     try {
       console.log('[RAG] Ollama Query:', message);
 
-      // 1. Generate embedding with Ollama
-      const embedding = await this.generateOllamaEmbedding(message);
-      console.log('[RAG] Ollama embedding generated:', embedding.length, 'dims');
+      // 1. Use keyword search to find relevant chunks
+      const chunks = await this.getRelevantChunksByKeywords(message);
+      console.log('[RAG] Chunks found via keyword search:', chunks.length);
 
-      // 2. Query Supabase for similar chunks
-      const { data: chunks, error } = await this.supabase.rpc(
-        'match_knowledge_chunks',
-        {
-          query_embedding: embedding,
-          match_count: 3,
-        }
-      );
-
-      console.log('[RAG] Chunks found:', chunks?.length || 0);
-
-      if (error || !chunks || chunks.length === 0) {
-        console.log('[RAG] No chunks, using keyword search fallback');
-        return await this.ragMockWithSupabase(message);
+      if (chunks.length === 0) {
+        console.log('[RAG] No chunks found');
+        return this.getFallbackResponse(message);
       }
 
-      // 3. Build context and generate conversational response
+      // 2. Build context from chunks
       const context = chunks.map((c: any) => c.content).join('\n\n');
-      const systemPrompt = `Eres un asistente sobre Sergi Piqué. Responde de manera conversacional y natural en español.
-Usa la información proporcionada para contestar preguntas sobre su experiencia, skills, proyectos y personalidad.
-Si no encuentras la información exacta, responde de forma natural basándote en el contexto.`;
 
+      // 3. Generate conversational response with Ollama
+      const systemPrompt = `Eres un asistente sobre Sergi Piqué. Responde de manera conversacional y natural en español.
+Usa SOLO la información proporcionada para contestar preguntas sobre su experiencia, skills, proyectos y personalidad.
+Si no encuentras la información exacta, responde de forma natural basándote en el contexto.
+Sé conciso y amable.`;
+
+      console.log('[RAG] Generating Ollama response...');
       const response = await this.generateOllamaResponse(systemPrompt, context);
+      console.log('[RAG] Ollama response length:', response.length);
       return response || this.getFallbackResponse(message);
-    } catch (error) {
-      console.error('[RAG] Ollama error:', error);
+    } catch (error: any) {
+      console.error('[RAG] Ollama error:', error?.message || error);
       return await this.ragMockWithSupabase(message);
+    }
+  }
+
+  // Extract relevant chunks by keywords
+  private async getRelevantChunksByKeywords(message: string): Promise<any[]> {
+    try {
+      const { data: allChunks, error } = await this.supabase
+        .from('knowledge_chunks')
+        .select('id, content, source');
+
+      if (error || !allChunks || allChunks.length === 0) {
+        return [];
+      }
+
+      // Keyword search with category detection
+      const queryLower = message.toLowerCase();
+      const categories = {
+        hardskills: ['hardskills', 'hard skills', 'angular', 'react', 'node', 'python', 'typescript', 'backend', 'frontend', 'stack', 'tecnolog'],
+        softskills: ['softskills', 'soft skills', 'liderazgo', 'comunicación', 'personalidad', 'disc', 'eneagrama'],
+        proyectos: ['proyecto', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma'],
+        experiencia: ['trabajo', 'experiencia', 'splai', 'templo', 'empresa', 'laboral'],
+        ia: ['inteligencia artificial', 'ia', 'llm', 'embeddings'],
+      };
+
+      let detectedCategory = '';
+      for (const [cat, keywords] of Object.entries(categories)) {
+        if (keywords.some(kw => queryLower.includes(kw))) {
+          detectedCategory = cat;
+          break;
+        }
+      }
+
+      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+      const scored = allChunks.map((chunk: any) => {
+        const contentLower = chunk.content.toLowerCase();
+        let score = queryWords.filter(word => contentLower.includes(word)).length;
+
+        if (detectedCategory) {
+          const categoryKeywords = categories[detectedCategory as keyof typeof categories];
+          if (categoryKeywords.some(kw => contentLower.includes(kw))) {
+            score += 2;
+          }
+        }
+
+        return { ...chunk, score };
+      });
+
+      return scored
+        .filter((c: any) => c.score > 0)
+        .sort((a: any, b: any) => b.score - a.score)
+        .slice(0, 3);
+    } catch (error) {
+      console.error('[RAG] Keyword extraction error:', error);
+      return [];
     }
   }
 
