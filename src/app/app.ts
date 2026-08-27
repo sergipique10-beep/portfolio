@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
 import { Nav } from './components/nav/nav';
 import { Hero } from './components/hero/hero';
 import { About } from './components/about/about';
@@ -6,15 +6,20 @@ import { Skills } from './components/skills/skills';
 import { Projects } from './components/projects/projects';
 import { Contact } from './components/contact/contact';
 import { Footer } from './components/footer/footer';
+import { Babysharky } from './components/babysharky/babysharky';
+import { ChatDrawer } from './components/chat-drawer/chat-drawer';
 
 @Component({
   selector: 'app-root',
-  imports: [Nav, Hero, About, Skills, Projects, Contact, Footer],
+  imports: [Nav, Hero, About, Skills, Projects, Contact, Footer, Babysharky, ChatDrawer],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App implements AfterViewInit, OnDestroy {
+  @ViewChild(ChatDrawer) chatDrawer?: ChatDrawer;
+
   private observer?: IntersectionObserver;
+  chatDrawerOpen = false;
 
   // Observa todos los .anim del documento (de cualquier sección) y los revela
   // al entrar en viewport. Corre tras renderizarse los componentes hijos.
@@ -30,5 +35,13 @@ export class App implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.observer?.disconnect();
+  }
+
+  toggleChat() {
+    this.chatDrawerOpen = !this.chatDrawerOpen;
+  }
+
+  onChatClose() {
+    this.chatDrawerOpen = false;
   }
 }

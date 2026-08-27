@@ -5,3 +5,7 @@
 <app-projects></app-projects>
 <app-contact></app-contact>
 <app-footer></app-footer>
+
+<!-- RAG Chat Interface -->
+<app-babysharky (openChat)="toggleChat()"></app-babysharky>
+<app-chat-drawer [isOpen]="chatDrawerOpen" (close)="onChatClose()"></app-chat-drawer>

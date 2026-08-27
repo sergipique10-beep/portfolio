@@ -1,0 +1,51 @@
+<div class="drawer-backdrop" *ngIf="isOpen" (click)="onClose()"></div>
+
+<div class="drawer" [class.open]="isOpen">
+  <!-- Header -->
+  <div class="drawer-header">
+    <h2>Pregúntame sobre mí</h2>
+    <button class="close-btn" (click)="onClose()" type="button" aria-label="Cerrar chat">
+      ✕
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages-container" #messagesList>
+    <div *ngIf="messages.length === 0" class="empty-state">
+      <p>Hola 👋 Soy Babysharky, tu asistente RAG.</p>
+      <p>Pregúntame sobre las habilidades, proyectos o personalidad de Sergi.</p>
+    </div>
+
+    <app-message-item
+      *ngFor="let message of messages"
+      [message]="message"
+      [isAssistant]="message.role === 'assistant'"
+    ></app-message-item>
+
+    <div class="error-message" *ngIf="errorMessage">
+      ⚠️ {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- Footer (Input) -->
+  <div class="drawer-footer">
+    <textarea
+      class="message-input"
+      [(ngModel)]="inputMessage"
+      (keydown)="onSendMessage($event)"
+      placeholder="Pregunta sobre mis habilidades, proyectos, o personalidad..."
+      [disabled]="isLoading"
+      rows="1"
+    ></textarea>
+    <button
+      class="send-btn"
+      (click)="onSendMessage()"
+      [disabled]="!inputMessage.trim() || isLoading"
+      type="button"
+      aria-label="Enviar mensaje"
+    >
+      <span *ngIf="!isLoading">→</span>
+      <span *ngIf="isLoading" class="spinner"></span>
+    </button>
+  </div>
+</div>
