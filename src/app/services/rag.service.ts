@@ -123,9 +123,16 @@ export class RagService {
         return { ...chunk, score };
       });
 
-      // Return top 3 only if they have good score, otherwise use fallback
-      const relevant = scored.filter((c: any) => c.score > 0.5);
-      return relevant.length > 0 ? relevant.sort((a: any, b: any) => b.score - a.score).slice(0, 3) : [];
+      // Return top 3 only if they have REALLY good score (matched relevant keywords)
+      // Require either: category match (score >= 5) OR multiple exact matches
+      const relevant = scored.filter((c: any) => c.score >= 3);
+
+      if (relevant.length === 0) {
+        console.log('[RAG] No relevant chunks found - using fallback');
+        return [];
+      }
+
+      return relevant.sort((a: any, b: any) => b.score - a.score).slice(0, 3);
     } catch (error) {
       console.error('[RAG] Keyword extraction error:', error);
       return [];
