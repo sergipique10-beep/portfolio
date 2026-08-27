@@ -183,7 +183,7 @@ export class RagService {
   // Generate real embedding using Gemini API (free tier)
   private async generateGeminiEmbedding(text: string): Promise<number[]> {
     try {
-      const model = this.gemini.getGenerativeModel({ model: 'embedding-001' });
+      const model = this.gemini.getGenerativeModel({ model: 'embedding-004' });
       const result = await model.embedContent(text);
       console.log('[Gemini] Embedding generated:', result.embedding.values.length, 'dims');
       return result.embedding.values;
