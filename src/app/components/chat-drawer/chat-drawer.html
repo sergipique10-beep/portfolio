@@ -32,7 +32,7 @@
     <textarea
       class="message-input"
       [(ngModel)]="inputMessage"
-      (keydown)="onSendMessage($event)"
+      (keydown.enter)="onSendMessage()"
       placeholder="Pregunta sobre mis habilidades, proyectos, o personalidad..."
       [disabled]="isLoading"
       rows="1"

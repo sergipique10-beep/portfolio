@@ -36,12 +36,7 @@ export class ChatDrawer implements AfterViewChecked {
     this.close.emit();
   }
 
-  onSendMessage(event?: KeyboardEvent) {
-    // Allow Ctrl+Enter or Cmd+Enter to send
-    if (event && event.key === 'Enter' && !event.ctrlKey && !event.metaKey) {
-      return;
-    }
-
+  onSendMessage() {
     if (!this.inputMessage.trim() || this.isLoading) {
       return;
     }

@@ -121,15 +121,15 @@ export class RagService {
 
     // Match keywords
     const msg = message.toLowerCase();
-    let response = mockResponses.default;
+    let response = mockResponses['default'];
 
-    if (msg.includes('stack') || msg.includes('tecnolog')) response = mockResponses.stack;
-    else if (msg.includes('skill') || msg.includes('fortaleza')) response = mockResponses.skills;
-    else if (msg.includes('proyecto')) response = mockResponses.projects;
-    else if (msg.includes('experiencia') || msg.includes('trabajo')) response = mockResponses.experiencia;
+    if (msg.includes('stack') || msg.includes('tecnolog')) response = mockResponses['stack'];
+    else if (msg.includes('skill') || msg.includes('fortaleza')) response = mockResponses['skills'];
+    else if (msg.includes('proyecto')) response = mockResponses['projects'];
+    else if (msg.includes('experiencia') || msg.includes('trabajo')) response = mockResponses['experiencia'];
     else if (msg.includes('personali') || msg.includes('eneagrama') || msg.includes('disc'))
-      response = mockResponses.personalidad;
-    else if (msg.includes('hola') || msg.includes('hi')) response = mockResponses.hola;
+      response = mockResponses['personalidad'];
+    else if (msg.includes('hola') || msg.includes('hi')) response = mockResponses['hola'];
 
     // Stream response character by character with delay
     return new Observable((subscriber) => {

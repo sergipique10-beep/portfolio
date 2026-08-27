@@ -169,7 +169,7 @@ $text-color: #333;
   flex-shrink: 0;
 
   &:hover:not(:disabled) {
-    background: darken($primary-color, 10%);
+    background: color-mix(in srgb, $primary-color 85%, black);
     transform: scale(1.05);
   }
 
