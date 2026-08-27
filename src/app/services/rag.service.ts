@@ -246,19 +246,15 @@ export class RagService {
     return embedding.map((x) => x / norm);
   }
 
-  // Fallback responses if Supabase fails
+  // Fallback responses if no chunks found
   private getFallbackResponse(message: string): string {
-    const msg = message.toLowerCase();
+    const responses = [
+      'No tengo información sobre eso en mi base de datos. ¡Pero puedes preguntarle directamente a Sergi en una entrevista! 😊',
+      'Esa información no la tengo disponible. Te recomiendo contactar con Sergi directamente para conocer más detalles.',
+      'No encuentro información sobre eso. ¿Por qué no le haces la pregunta directamente a Sergi? Seguro tiene una respuesta interesante.',
+      'Parece que eso no está en mi conocimiento. ¡Sergi estaría encantado de explicártelo en persona!',
+    ];
 
-    if (msg.includes('eneagrama') || msg.includes('personalidad') || msg.includes('disc'))
-      return 'Sergi es Eneagrama 1w9 con perfil DISC DC. Tiene principios fuertes pero es flexible. Resultados-oriented y calidad-focused.';
-    if (msg.includes('stack') || msg.includes('tecnolog'))
-      return 'Stack: Angular (frontend), Node.js/Express (backend), PostgreSQL (datos), AWS/Vercel (cloud), Claude API (IA).';
-    if (msg.includes('proyecto'))
-      return 'Proyectos: CsFinance (plataforma inversión), DevHub (gestor developers), Portfolio Assistant (lo que estás usando).';
-    if (msg.includes('experiencia') || msg.includes('trabajo'))
-      return 'Trabajó en SPLAI (IA aplicada a BI) y Templo Esports. Especialista en full-stack y IA aplicada.';
-
-    return 'Soy el asistente RAG de Sergi. Pregúntame sobre su stack, skills, proyectos, experiencia o personalidad.';
+    return responses[Math.floor(Math.random() * responses.length)];
   }
 }
