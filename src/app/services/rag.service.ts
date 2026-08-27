@@ -82,32 +82,47 @@ export class RagService {
       const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
       const scored = allChunks.map((chunk: any) => {
         const contentLower = chunk.content.toLowerCase();
-
-        // Score by exact word matches
         let score = 0;
+
+        // 1. Exact word matches (high score)
         for (const word of queryWords) {
           if (contentLower.includes(word)) {
-            score += 2;
-          }
-        }
-
-        // Boost if category matches
-        if (detectedCategory) {
-          const categoryKeywords = categories[detectedCategory as keyof typeof categories];
-          if (categoryKeywords.some(kw => contentLower.includes(kw))) {
             score += 3;
           }
         }
 
-        // If no specific match, give all chunks a minimum score
+        // 2. Partial matches (medium score) - first 3 letters
+        for (const word of queryWords) {
+          if (word.length > 3) {
+            const partial = word.slice(0, 3);
+            if (contentLower.includes(partial)) {
+              score += 1;
+            }
+          }
+        }
+
+        // 3. Category boost (if detected)
+        if (detectedCategory) {
+          const categoryKeywords = categories[detectedCategory as keyof typeof categories];
+          if (categoryKeywords.some(kw => contentLower.includes(kw))) {
+            score += 5;
+          }
+        }
+
+        // 4. If no match, give base score (so something is always returned)
         if (score === 0) {
-          score = 0.5; // Will be sorted last but not filtered out
+          // Prefer CV and skills chunks as defaults
+          if (chunk.source === 'cv' || chunk.source === 'skills') {
+            score = 2;
+          } else {
+            score = 1;
+          }
         }
 
         return { ...chunk, score };
       });
 
-      // Always return top 3, even if scores are low
+      // Always return top 3, sorted by relevance
       return scored
         .sort((a: any, b: any) => b.score - a.score)
         .slice(0, 3);
