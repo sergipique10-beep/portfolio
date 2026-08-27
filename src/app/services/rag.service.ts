@@ -79,60 +79,53 @@ export class RagService {
         }
       }
 
-      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2 && w !== 'sergi');
+      // List of all valid keyword variations
+      const allValidKeywords = [
+        'hardskills', 'hard skills', 'skill', 'habilidad', 'angular', 'react', 'node', 'python', 'typescript', 'backend', 'frontend', 'stack', 'tecnolog', 'framework',
+        'softskills', 'soft skills', 'liderazgo', 'comunicación', 'personalidad', 'disc', 'eneagrama', 'eneatipo', 'caracter',
+        'proyecto', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma', 'app',
+        'trabajo', 'experiencia', 'splai', 'templo', 'empresa', 'laboral', 'carrera',
+        'ia', 'ai', 'inteligencia artificial', 'llm', 'embeddings', 'machine learning'
+      ];
+
+      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+
+      // Check if ANY query word matches our valid keywords
+      const hasValidKeyword = queryWords.some(word =>
+        allValidKeywords.some(kw => kw.includes(word) || word.includes(kw.slice(0, 4)))
+      );
+
+      if (!hasValidKeyword && !detectedCategory) {
+        console.log('[RAG] No valid keywords found - using fallback immediately');
+        return [];
+      }
+
       const scored = allChunks.map((chunk: any) => {
         const contentLower = chunk.content.toLowerCase();
         let score = 0;
 
-        // 1. Exact word matches (high score)
-        for (const word of queryWords) {
-          if (contentLower.includes(word)) {
-            score += 3;
-          }
-        }
-
-        // 2. Partial matches (medium score) - first 3 letters
-        for (const word of queryWords) {
-          if (word.length > 3) {
-            const partial = word.slice(0, 3);
-            if (contentLower.includes(partial)) {
-              score += 1;
-            }
-          }
-        }
-
-        // 3. Category boost (if detected)
+        // Only score if there's a category or valid keyword match
         if (detectedCategory) {
           const categoryKeywords = categories[detectedCategory as keyof typeof categories];
           if (categoryKeywords.some(kw => contentLower.includes(kw))) {
-            score += 5;
+            score = 5;
           }
-        }
-
-        // 4. If no relevant match, give minimal score
-        if (score === 0) {
-          // Only prefer CV/skills if user asked something generic
-          // Otherwise return low score so fallback is used
-          if (queryWords.length === 0) {
-            score = 0.5;
-          } else {
-            score = 0; // No match = use fallback
+        } else {
+          // Score only if valid keyword found in query
+          for (const word of queryWords) {
+            if (allValidKeywords.some(kw => kw.includes(word) || word.includes(kw.slice(0, 4)))) {
+              if (contentLower.includes(word)) {
+                score += 3;
+              }
+            }
           }
         }
 
         return { ...chunk, score };
       });
 
-      // Return top 3 only if they have REALLY good score (matched relevant keywords)
-      // Require either: category match (score >= 5) OR multiple exact matches
-      const relevant = scored.filter((c: any) => c.score >= 3);
-
-      if (relevant.length === 0) {
-        console.log('[RAG] No relevant chunks found - using fallback');
-        return [];
-      }
-
-      return relevant.sort((a: any, b: any) => b.score - a.score).slice(0, 3);
+      const relevant = scored.filter((c: any) => c.score > 0);
+      return relevant.length > 0 ? relevant.sort((a: any, b: any) => b.score - a.score).slice(0, 3) : [];
     } catch (error) {
       console.error('[RAG] Keyword extraction error:', error);
       return [];
