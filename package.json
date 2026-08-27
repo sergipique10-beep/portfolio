@@ -17,13 +17,19 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@anthropic-ai/sdk": "^0.121.0",
+    "@supabase/supabase-js": "^2.112.4",
+    "openai": "^7.7.0",
     "rxjs": "~7.8.0",
+    "supabase": "^2.116.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular/build": "^21.2.8",
     "@angular/cli": "^21.2.8",
     "@angular/compiler-cli": "^21.2.0",
+    "@types/node": "^26.4.0",
+    "@vercel/node": "^8.1.2",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2"
   }
