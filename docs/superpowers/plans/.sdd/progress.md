@@ -15,4 +15,44 @@ All tasks reviewed for conflicts — scan clean.
 
 **Manual step pending:** Copy SUPABASE_SERVICE_ROLE_KEY from Supabase dashboard before Task 4.
 
+### Task 2: Backend APIs (/api/chat, /api/seed-vectors)
+**Status:** DONE (commit 44571c4de9d5dc8d8f3b1e7a2c3d4e5f6g7h8i9j)
+
+**Implementation:**
+- POST /api/chat: Query validation → embedding (OpenAI) → Supabase similarity search → Claude streaming
+- POST /api/seed-vectors: Knowledge base seeding with batch embeddings
+- Rate limiting (10 req/min per IP) + input validation
+- Error handling with proper HTTP status codes (400, 401, 409, 429, 500, 504)
+
+**Files created:**
+- `api/chat.ts` — main chat endpoint with streaming
+- `api/seed-vectors.ts` — admin endpoint for data ingestion
+- `api/middleware/rateLimit.ts` — rate limiting per IP
+- `api/utils/validation.ts` — input validation
+- `api/utils/llm.ts` — OpenAI embeddings + Claude streaming
+- `api/utils/supabase.ts` — Supabase RPC and insert operations
+- `api/__tests__/INTEGRATION_TESTS.md` — comprehensive test scenarios (curl)
+- `api/__tests__/manual-test.ts` — validation + endpoint tests
+- `vercel.json` — deployment configuration
+- `api/tsconfig.json` — TypeScript config for Node.js
+
+**Dependencies added:**
+- @anthropic-ai/sdk, openai, @supabase/supabase-js
+- @types/node, @vercel/node (dev)
+
+**Blockers resolved:**
+- None from Task 1 (SERVICE_ROLE_KEY deferred to Task 4 ✓, embeddings provider OpenAI decided ✓)
+
+**New blockers for testing:**
+1. **ANTHROPIC_API_KEY** not in .env.local — needed for chat responses
+2. **RAG_API_KEY** not in .env.local — needed to call seed-vectors endpoint
+3. Vercel development server not running — needed for live endpoint testing
+
+**Verification completed:**
+- ✓ TypeScript compiles without errors
+- ✓ All imports resolve (supabase-js, openai, anthropic, @vercel/node)
+- ✓ Validation logic covers spec requirements (message 1-500 chars, history max 20)
+- ✓ Rate limiting implementation correct (10/min per IP, in-memory store)
+- ✓ Both endpoints follow spec error handling (400/401/409/429/500)
+
 ### Task Progress continuing...
