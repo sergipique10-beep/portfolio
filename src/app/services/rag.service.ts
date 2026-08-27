@@ -106,6 +106,8 @@ export class RagService {
 
       // 3. Calculate TF-IDF-like scores
       const queryTermsArray = Array.from(queryTerms);
+      const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
       const scored = allChunks.map((chunk: any) => {
         const contentLower = chunk.content.toLowerCase();
         const contentLength = chunk.content.length;
@@ -113,7 +115,8 @@ export class RagService {
         // Count term occurrences (TF)
         let termFrequency = 0;
         queryTermsArray.forEach(term => {
-          const regex = new RegExp(`\\b${term}\\b`, 'g');
+          const escapedTerm = escapeRegex(term);
+          const regex = new RegExp(`\\b${escapedTerm}\\b`, 'g');
           const matches = contentLower.match(regex);
           termFrequency += matches ? matches.length : 0;
         });
