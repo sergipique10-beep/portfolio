@@ -10,9 +10,14 @@ export interface ChatMessage {
 @Injectable({ providedIn: 'root' })
 export class RagService {
   private readonly API_URL = '/api/chat';
+  private useMockMode = true; // Toggle to false for real API
 
   // Send message and receive streaming response via Server-Sent Events
   chat(message: string, chatHistory: ChatMessage[]): Observable<string> {
+    if (this.useMockMode) {
+      return this.chatMock(message);
+    }
+
     return new Observable((subscriber) => {
       const payload = {
         message,
@@ -93,6 +98,53 @@ export class RagService {
         .catch((error) => {
           subscriber.error(error);
         });
+    });
+  }
+
+  // Mock responses for testing without API costs
+  private chatMock(message: string): Observable<string> {
+    const mockResponses: Record<string, string> = {
+      stack:
+        'Trabajo principalmente con Angular en frontend, Node.js/Express en backend, y PostgreSQL para datos. También tengo experiencia con Python, AWS, y últimamente integro mucho Claude API para IA aplicada.',
+      skills:
+        'Mis fortalezas: full-stack development, arquitectura escalable, IA aplicada, y comunicación clara del código. Perfil DISC DC: resultados-oriented y quality-focused. Eneagrama 1w9: perfectionist con flexibilidad.',
+      projects:
+        'He desarrollado CsFinance (plataforma de inversión), DevHub (gestor para developers), y este Portfolio Assistant que estás usando ahora. Todos combinan frontend Angular, backend serverless, y IA.',
+      experiencia:
+        'Trabajé en SPLAI (IA aplicada a BI) y Templo Esports (plataforma de competiciones). Combino velocidad de ejecución con rigor técnico. Valoro mentality de product y aprendizaje continuo.',
+      personalidad:
+        'Soy Eneagrama 1w9: principios sólidos hacia lo correcto, pero flexible. DISC DC: driven by results pero con conscientiousness. Prefiero autonomía y equipos de alta performance.',
+      hola: '¡Hola! Soy el asistente RAG de Sergi. Pregúntame sobre stack, skills, proyectos, experiencia o personalidad. Estoy aquí para ayudarte a conocer mejor a Sergi.',
+      default:
+        'Esa es una pregunta interesante. Basado en mi conocimiento sobre Sergi, puedo decirte que es un fullstack engineer especializado en IA con mentalidad de product. ¿Hay algo más específico que quieras saber?',
+    };
+
+    // Match keywords
+    const msg = message.toLowerCase();
+    let response = mockResponses.default;
+
+    if (msg.includes('stack') || msg.includes('tecnolog')) response = mockResponses.stack;
+    else if (msg.includes('skill') || msg.includes('fortaleza')) response = mockResponses.skills;
+    else if (msg.includes('proyecto')) response = mockResponses.projects;
+    else if (msg.includes('experiencia') || msg.includes('trabajo')) response = mockResponses.experiencia;
+    else if (msg.includes('personali') || msg.includes('eneagrama') || msg.includes('disc'))
+      response = mockResponses.personalidad;
+    else if (msg.includes('hola') || msg.includes('hi')) response = mockResponses.hola;
+
+    // Stream response character by character with delay
+    return new Observable((subscriber) => {
+      let index = 0;
+      const interval = setInterval(() => {
+        if (index < response.length) {
+          subscriber.next(response[index]);
+          index++;
+        } else {
+          clearInterval(interval);
+          subscriber.complete();
+        }
+      }, 30); // 30ms per character for natural typing effect
+
+      return () => clearInterval(interval);
     });
   }
 }
