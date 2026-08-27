@@ -244,7 +244,7 @@ Sé conciso y amable.`;
     }
   }
 
-  // Extract relevant chunks by keywords
+  // Extract relevant chunks by keywords (flexible matching)
   private async getRelevantChunksByKeywords(message: string): Promise<any[]> {
     try {
       const { data: allChunks, error } = await this.supabase
@@ -258,11 +258,11 @@ Sé conciso y amable.`;
       // Keyword search with category detection
       const queryLower = message.toLowerCase();
       const categories = {
-        hardskills: ['hardskills', 'hard skills', 'angular', 'react', 'node', 'python', 'typescript', 'backend', 'frontend', 'stack', 'tecnolog'],
-        softskills: ['softskills', 'soft skills', 'liderazgo', 'comunicación', 'personalidad', 'disc', 'eneagrama'],
-        proyectos: ['proyecto', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma'],
-        experiencia: ['trabajo', 'experiencia', 'splai', 'templo', 'empresa', 'laboral'],
-        ia: ['inteligencia artificial', 'ia', 'llm', 'embeddings'],
+        hardskills: ['hardskills', 'hard skills', 'skill', 'habilidad', 'angular', 'react', 'node', 'python', 'typescript', 'backend', 'frontend', 'stack', 'tecnolog', 'framework', 'lenguaje', 'herramient'],
+        softskills: ['softskills', 'soft skills', 'liderazgo', 'comunicación', 'personalidad', 'disc', 'eneagrama', 'eneatipo', 'tipo', 'caracter', 'rasgo'],
+        proyectos: ['proyecto', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma', 'app', 'herramienta', 'crear', 'build'],
+        experiencia: ['trabajo', 'experiencia', 'splai', 'templo', 'empresa', 'laboral', 'carrera', 'puesto', 'profesional'],
+        ia: ['inteligencia artificial', 'ia', 'ai', 'llm', 'embeddings', 'generative', 'modelo', 'machine learning'],
       };
 
       let detectedCategory = '';
@@ -276,20 +276,33 @@ Sé conciso y amable.`;
       const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
       const scored = allChunks.map((chunk: any) => {
         const contentLower = chunk.content.toLowerCase();
-        let score = queryWords.filter(word => contentLower.includes(word)).length;
 
+        // Score by exact word matches
+        let score = 0;
+        for (const word of queryWords) {
+          if (contentLower.includes(word)) {
+            score += 2;
+          }
+        }
+
+        // Boost if category matches
         if (detectedCategory) {
           const categoryKeywords = categories[detectedCategory as keyof typeof categories];
           if (categoryKeywords.some(kw => contentLower.includes(kw))) {
-            score += 2;
+            score += 3;
           }
+        }
+
+        // If no specific match, give all chunks a minimum score
+        if (score === 0) {
+          score = 0.5; // Will be sorted last but not filtered out
         }
 
         return { ...chunk, score };
       });
 
+      // Always return top 3, even if scores are low
       return scored
-        .filter((c: any) => c.score > 0)
         .sort((a: any, b: any) => b.score - a.score)
         .slice(0, 3);
     } catch (error) {
