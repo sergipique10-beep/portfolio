@@ -18,7 +18,7 @@ export class RagService {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcnlrYmNic3Vna2F4aHNhaGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3OTE4NzIsImV4cCI6MjEwMzM2Nzg3Mn0.EHQIVjhGx6vrDSNGGh8z_twqbU5_bNphNFIJ_CbcRK8'
   );
   private gemini = new GoogleGenerativeAI(
-    'REDACTED_GOOGLE_API_KEY' // Free tier key
+    'REDACTED_GOOGLE_API_KEY' // Replace with your free key from ai.google.dev
   );
 
   // Send message and receive streaming response via Server-Sent Events
