@@ -16,6 +16,7 @@ export class ChatDrawer implements AfterViewChecked {
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('messagesList') messagesList?: ElementRef<HTMLDivElement>;
+  @ViewChild('inputTextarea') inputTextarea?: ElementRef<HTMLTextAreaElement>;
 
   messages: ChatMessage[] = [];
   inputMessage = '';
@@ -53,6 +54,9 @@ export class ChatDrawer implements AfterViewChecked {
     this.messages.push(userMessage);
     const messageContent = this.inputMessage; // Save before clearing
     this.inputMessage = ''; // Clear input immediately
+    if (this.inputTextarea) {
+      this.inputTextarea.nativeElement.value = ''; // Force clear textarea
+    }
     this.isLoading = true;
     this.errorMessage = '';
     this.cdr.markForCheck(); // Force update to clear textarea
