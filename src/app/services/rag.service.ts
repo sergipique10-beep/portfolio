@@ -12,7 +12,9 @@ export interface ChatMessage {
 @Injectable({ providedIn: 'root' })
 export class RagService {
   private readonly API_URL = '/api/chat';
-  private useMockMode = true; // Toggle to false for real API
+  private readonly OLLAMA_URL = 'http://localhost:11434/api';
+  private useMockMode = false; // Use Ollama mode
+  private useOllama = true; // Toggle Ollama
   private supabase = createClient(
     'https://kjrykbcbsugkaxhsahex.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcnlrYmNic3Vna2F4aHNhaGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3OTE4NzIsImV4cCI6MjEwMzM2Nzg3Mn0.EHQIVjhGx6vrDSNGGh8z_twqbU5_bNphNFIJ_CbcRK8'
@@ -110,10 +112,10 @@ export class RagService {
     });
   }
 
-  // RAG with Supabase + mock embeddings (no API costs)
+  // RAG with Ollama or fallback to keyword search
   private chatMock(message: string): Observable<string> {
     return new Observable((subscriber) => {
-      this.ragMockWithSupabase(message)
+      (this.useOllama ? this.ragWithOllama(message) : this.ragMockWithSupabase(message))
         .then((response) => {
           // Stream response character by character with delay
           let index = 0;
@@ -130,10 +132,116 @@ export class RagService {
           return () => clearInterval(interval);
         })
         .catch((error) => {
-          console.error('Mock RAG error:', error);
+          console.error('RAG error:', error);
           subscriber.error(error);
         });
     });
+  }
+
+  // Ollama embedding generation
+  private async generateOllamaEmbedding(text: string): Promise<number[]> {
+    try {
+      const response = await fetch(`${this.OLLAMA_URL}/embed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'nomic-embed-text',
+          input: text,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('[Ollama] Embedding error:', response.status);
+        throw new Error(`Ollama error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.embeddings[0] || [];
+    } catch (error) {
+      console.error('[Ollama] Embedding failed:', error);
+      throw error;
+    }
+  }
+
+  // Ollama text generation (conversational responses)
+  private async generateOllamaResponse(prompt: string, context: string): Promise<string> {
+    try {
+      const fullPrompt = `${prompt}\n\nContexto:\n${context}`;
+      let response = '';
+
+      const stream = await fetch(`${this.OLLAMA_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'mistral',
+          prompt: fullPrompt,
+          stream: true,
+          temperature: 0.7,
+        }),
+      });
+
+      const reader = stream.body?.getReader();
+      if (!reader) throw new Error('No stream');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const text = new TextDecoder().decode(value);
+        const lines = text.split('\n').filter(l => l.trim());
+
+        for (const line of lines) {
+          try {
+            const json = JSON.parse(line);
+            if (json.response) response += json.response;
+          } catch {}
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error('[Ollama] Generation failed:', error);
+      throw error;
+    }
+  }
+
+  // RAG retrieval using Ollama embeddings + vector search
+  private async ragWithOllama(message: string): Promise<string> {
+    try {
+      console.log('[RAG] Ollama Query:', message);
+
+      // 1. Generate embedding with Ollama
+      const embedding = await this.generateOllamaEmbedding(message);
+      console.log('[RAG] Ollama embedding generated:', embedding.length, 'dims');
+
+      // 2. Query Supabase for similar chunks
+      const { data: chunks, error } = await this.supabase.rpc(
+        'match_knowledge_chunks',
+        {
+          query_embedding: embedding,
+          match_count: 3,
+        }
+      );
+
+      console.log('[RAG] Chunks found:', chunks?.length || 0);
+
+      if (error || !chunks || chunks.length === 0) {
+        console.log('[RAG] No chunks, using keyword search fallback');
+        return await this.ragMockWithSupabase(message);
+      }
+
+      // 3. Build context and generate conversational response
+      const context = chunks.map((c: any) => c.content).join('\n\n');
+      const systemPrompt = `Eres un asistente sobre Sergi Piqué. Responde de manera conversacional y natural en español.
+Usa la información proporcionada para contestar preguntas sobre su experiencia, skills, proyectos y personalidad.
+Si no encuentras la información exacta, responde de forma natural basándote en el contexto.`;
+
+      const response = await this.generateOllamaResponse(systemPrompt, context);
+      return response || this.getFallbackResponse(message);
+    } catch (error) {
+      console.error('[RAG] Ollama error:', error);
+      return await this.ragMockWithSupabase(message);
+    }
   }
 
   // RAG retrieval using keyword search (no embeddings needed)
