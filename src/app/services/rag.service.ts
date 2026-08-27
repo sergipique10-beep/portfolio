@@ -22,8 +22,11 @@ export class RagService {
     softskills: ['personality', 'personalidad', 'disc', 'eneagrama', 'blandas'],
     personalidad: ['softskills', 'personality', 'disc', 'eneagrama'],
     disc: ['personality', 'personalidad', 'softskills'],
-    habilidades: ['skills', 'competencias', 'stack'],
-    experiencia: ['trabajo', 'empresa', 'splai', 'templo esports'],
+    skills: ['habilidades', 'competencias', 'stack', 'técnicas', 'angular', 'react', 'nodejs', 'python', 'backend', 'frontend'],
+    habilidades: ['skills', 'competencias', 'stack', 'técnicas'],
+    experiencia: ['trabajo', 'empresa', 'splai', 'templo esports', 'laboral'],
+    conocimientos: ['skills', 'habilidades', 'competencias'],
+    tecnolog: ['stack', 'frameworks', 'herramientas', 'backend', 'frontend'],
   };
 
   // Send message and receive streaming response
