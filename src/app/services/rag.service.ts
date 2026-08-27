@@ -158,11 +158,37 @@ export class RagService {
         return this.getFallbackResponse(message);
       }
 
-      // 2. Keyword search: find chunks matching query words
-      const queryWords = message.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+      // 2. Keyword search with category detection
+      const queryLower = message.toLowerCase();
+      const categories = {
+        hardskills: ['angular', 'react', 'node.js', 'python', 'fastapi', 'express', 'nestjs', 'sql', 'postgresql', 'aws', 'vercel', 'typescript', 'javascript', 'backend', 'frontend', 'stack', 'tecnolog'],
+        softskills: ['liderazgo', 'comunicación', 'adaptabilidad', 'resolución', 'pensamiento crítico', 'collaboración', 'trabajo en equipo', 'personalidad', 'disc', 'eneagrama'],
+        proyectos: ['proyecto', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma', 'herramienta'],
+        experiencia: ['trabajo', 'experiencia', 'splai', 'templo esports', 'empresa', 'laboral'],
+        ia: ['inteligencia artificial', 'ia', 'gemini', 'claude', 'llm', 'machine learning', 'generative', 'embeddings'],
+      };
+
+      let detectedCategory = '';
+      for (const [cat, keywords] of Object.entries(categories)) {
+        if (keywords.some(kw => queryLower.includes(kw))) {
+          detectedCategory = cat;
+          break;
+        }
+      }
+
+      const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
       const scored = allChunks.map((chunk: any) => {
         const contentLower = chunk.content.toLowerCase();
-        const score = queryWords.filter(word => contentLower.includes(word)).length;
+        let score = queryWords.filter(word => contentLower.includes(word)).length;
+
+        // Boost score if category matches
+        if (detectedCategory) {
+          const categoryKeywords = categories[detectedCategory as keyof typeof categories];
+          if (categoryKeywords.some(kw => contentLower.includes(kw))) {
+            score += 2;
+          }
+        }
+
         return { ...chunk, score };
       });
 
@@ -171,7 +197,7 @@ export class RagService {
         .sort((a: any, b: any) => b.score - a.score)
         .slice(0, 3);
 
-      console.log('[RAG] Keyword search results:', relevantChunks.length, 'chunks');
+      console.log('[RAG] Keyword search results:', relevantChunks.length, 'chunks - Category:', detectedCategory || 'none');
 
       if (relevantChunks.length === 0) {
         console.log('[RAG] No matching chunks, using fallback');
