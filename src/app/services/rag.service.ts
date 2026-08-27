@@ -15,6 +15,17 @@ export class RagService {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcnlrYmNic3Vna2F4aHNhaGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3OTE4NzIsImV4cCI6MjEwMzM2Nzg3Mn0.EHQIVjhGx6vrDSNGGh8z_twqbU5_bNphNFIJ_CbcRK8'
   );
 
+  // Synonyms mapping for better keyword matching
+  private synonyms = {
+    eneatipo: ['eneagrama', 'tipo'],
+    eneagrama: ['eneatipo', 'tipo'],
+    softskills: ['personality', 'personalidad', 'disc', 'eneagrama', 'blandas'],
+    personalidad: ['softskills', 'personality', 'disc', 'eneagrama'],
+    disc: ['personality', 'personalidad', 'softskills'],
+    habilidades: ['skills', 'competencias', 'stack'],
+    experiencia: ['trabajo', 'empresa', 'splai', 'templo esports'],
+  };
+
   // Send message and receive streaming response
   chat(message: string, chatHistory: ChatMessage[]): Observable<string> {
     return new Observable((subscriber) => {
@@ -74,20 +85,31 @@ export class RagService {
       // 2. Extract meaningful query terms (remove stop words)
       const queryLower = message.toLowerCase();
       const stopWords = ['qué', 'cómo', 'dónde', 'cuándo', 'por', 'para', 'con', 'del', 'de', 'es', 'en', 'y', 'o', 'a', 'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas'];
-      const queryTerms = queryLower
+      const baseQueryTerms = queryLower
         .split(/[\s,\.\!\?]+/)
         .filter(w => w.length > 2 && !stopWords.includes(w));
 
-      console.log('[RAG] Query terms:', queryTerms);
+      // Expand with synonyms
+      const queryTerms = new Set<string>();
+      baseQueryTerms.forEach(term => {
+        queryTerms.add(term);
+        // Add synonyms for this term
+        if (this.synonyms[term as keyof typeof this.synonyms]) {
+          this.synonyms[term as keyof typeof this.synonyms].forEach(syn => queryTerms.add(syn));
+        }
+      });
+
+      console.log('[RAG] Base terms:', baseQueryTerms, '| Expanded:', Array.from(queryTerms));
 
       // 3. Calculate TF-IDF-like scores
+      const queryTermsArray = Array.from(queryTerms);
       const scored = allChunks.map((chunk: any) => {
         const contentLower = chunk.content.toLowerCase();
         const contentLength = chunk.content.length;
 
         // Count term occurrences (TF)
         let termFrequency = 0;
-        queryTerms.forEach(term => {
+        queryTermsArray.forEach(term => {
           const regex = new RegExp(`\\b${term}\\b`, 'g');
           const matches = contentLower.match(regex);
           termFrequency += matches ? matches.length : 0;
@@ -96,15 +118,16 @@ export class RagService {
         // Normalize by document length (longer docs shouldn't get huge scores)
         const normalizedTF = termFrequency / Math.sqrt(contentLength / 100);
 
-        // Boost for exact phrase matches
-        const exactPhraseBoost = queryTerms.every(term => contentLower.includes(term)) ? 1.5 : 1;
+        // Boost for exact phrase matches (if any base term appears)
+        const hasAnyBaseTerm = baseQueryTerms.some(term => contentLower.includes(term));
+        const exactPhraseBoost = hasAnyBaseTerm ? 1.5 : 1;
 
         const score = normalizedTF * exactPhraseBoost;
         return { ...chunk, score, termFrequency };
       });
 
       // 4. Apply strict threshold (minimum relevance)
-      const RELEVANCE_THRESHOLD = 0.5;
+      const RELEVANCE_THRESHOLD = 0.3;
       const relevantChunks = scored
         .filter((c: any) => c.score >= RELEVANCE_THRESHOLD)
         .sort((a: any, b: any) => b.score - a.score)
