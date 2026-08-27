@@ -118,4 +118,6 @@ the authenticated Supabase MCP server instead, which is fully functional. Run `s
 
 ## Commits
 
-- `<commit-1>` — chore(rag): provision Supabase project and knowledge_chunks schema
+- `57969001c544aecaf37232e1239ba075f14ecfb8` — chore(rag): provision Supabase project and knowledge_chunks schema
+
+Committed on `main` (no feature branch), matching the existing plan-execution flow. Not pushed.
