@@ -202,7 +202,7 @@ export class RagService {
     }
     const seed = Math.abs(hash) % 1000;
     const embedding = [];
-    for (let i = 0; i < 768; i++) {
+    for (let i = 0; i < 1536; i++) {
       const x = Math.sin(seed + i * 0.1) * 10000;
       embedding.push(x - Math.floor(x));
     }
