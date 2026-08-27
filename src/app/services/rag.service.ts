@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { createClient } from '@supabase/supabase-js';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -11,6 +12,10 @@ export interface ChatMessage {
 export class RagService {
   private readonly API_URL = '/api/chat';
   private useMockMode = true; // Toggle to false for real API
+  private supabase = createClient(
+    'https://kjrykbcbsugkaxhsahex.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcnlrYmNic3Vna2F4aHNhaGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3OTE4NzIsImV4cCI6MjEwMzM2Nzg3Mn0.EHQIVjhGx6vrDSNGGh8z_twqbU5_bNphNFIJ_CbcRK8'
+  );
 
   // Send message and receive streaming response via Server-Sent Events
   chat(message: string, chatHistory: ChatMessage[]): Observable<string> {
@@ -101,65 +106,105 @@ export class RagService {
     });
   }
 
-  // Mock responses for testing without API costs
+  // RAG with Supabase + mock embeddings (no API costs)
   private chatMock(message: string): Observable<string> {
-    const mockResponses: Record<string, string> = {
-      stack:
-        'Trabajo principalmente con Angular en frontend, Node.js/Express en backend, y PostgreSQL para datos. También tengo experiencia con Python, AWS, y últimamente integro mucho Claude API para IA aplicada.',
-      skills:
-        'Mis fortalezas: full-stack development, arquitectura escalable, IA aplicada, y comunicación clara del código. Perfil DISC DC: resultados-oriented y quality-focused. Eneagrama 1w9: perfectionist con flexibilidad.',
-      projects:
-        'He desarrollado CsFinance (plataforma de inversión), DevHub (gestor para developers), y este Portfolio Assistant que estás usando ahora. Todos combinan frontend Angular, backend serverless, y IA.',
-      experiencia:
-        'Trabajé en SPLAI (IA aplicada a BI) y Templo Esports (plataforma de competiciones). Combino velocidad de ejecución con rigor técnico. Valoro mentality de product y aprendizaje continuo.',
-      personalidad:
-        'Soy Eneagrama 1w9: principios sólidos hacia lo correcto, pero flexible. DISC DC: driven by results pero con conscientiousness. Prefiero autonomía y equipos de alta performance.',
-      hola: '¡Hola! Soy el asistente RAG de Sergi. Pregúntame sobre stack, skills, proyectos, experiencia o personalidad. Estoy aquí para ayudarte a conocer mejor a Sergi.',
-      default:
-        'Esa es una pregunta interesante. Basado en mi conocimiento sobre Sergi, puedo decirte que es un fullstack engineer especializado en IA con mentalidad de product. ¿Hay algo más específico que quieras saber?',
-    };
-
-    // Match keywords with weighted scoring
-    const msg = message.toLowerCase();
-    const keywords = {
-      stack: ['stack', 'tecnolog', 'angular', 'node', 'react', 'database', 'aws', 'vercel', 'backend', 'frontend'],
-      skills: ['skill', 'fortaleza', 'especialidad', 'experto', 'puedo', 'sé', 'conozco'],
-      projects: ['proyecto', 'proyecto', 'csfinance', 'devhub', 'hiciste', 'construiste', 'desarrollaste'],
-      experiencia: ['experiencia', 'trabajo', 'empresa', 'splai', 'templo', 'laboral', 'carrera'],
-      personalidad: ['personali', 'eneagrama', 'disc', 'tipo', 'perfil', 'carácter', 'quién eres', 'cómo eres'],
-      hola: ['hola', 'hi', 'hey', 'saludos', 'buenos'],
-    };
-
-    let response = mockResponses['default'];
-    let bestMatch = 'default';
-    let bestScore = 0;
-
-    for (const [category, words] of Object.entries(keywords)) {
-      const score = words.filter((word) => msg.includes(word)).length;
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = category;
-      }
-    }
-
-    if (bestScore > 0 && mockResponses[bestMatch]) {
-      response = mockResponses[bestMatch];
-    }
-
-    // Stream response character by character with delay
     return new Observable((subscriber) => {
-      let index = 0;
-      const interval = setInterval(() => {
-        if (index < response.length) {
-          subscriber.next(response[index]);
-          index++;
-        } else {
-          clearInterval(interval);
-          subscriber.complete();
-        }
-      }, 30); // 30ms per character for natural typing effect
+      this.ragMockWithSupabase(message)
+        .then((response) => {
+          // Stream response character by character with delay
+          let index = 0;
+          const interval = setInterval(() => {
+            if (index < response.length) {
+              subscriber.next(response[index]);
+              index++;
+            } else {
+              clearInterval(interval);
+              subscriber.complete();
+            }
+          }, 30); // 30ms per character for natural typing effect
 
-      return () => clearInterval(interval);
+          return () => clearInterval(interval);
+        })
+        .catch((error) => {
+          console.error('Mock RAG error:', error);
+          subscriber.error(error);
+        });
     });
+  }
+
+  // RAG retrieval using Supabase + mock embeddings
+  private async ragMockWithSupabase(message: string): Promise<string> {
+    try {
+      // 1. Generate mock embedding from message (deterministic, based on message text)
+      const embedding = this.generateMockEmbedding(message);
+
+      // 2. Query Supabase for similar chunks
+      const { data: chunks, error } = await this.supabase.rpc(
+        'match_knowledge_chunks',
+        {
+          query_embedding: embedding,
+          match_count: 3,
+        }
+      );
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return this.getFallbackResponse(message);
+      }
+
+      if (!chunks || chunks.length === 0) {
+        return 'No encontré información relacionada con tu pregunta. ¿Puedes intentar con otra pregunta?';
+      }
+
+      // 3. Build response from retrieved chunks (RAG)
+      const context = chunks
+        .map((chunk: any) => chunk.content)
+        .join(' ')
+        .substring(0, 500);
+
+      return `Basándome en mi conocimiento: ${context}`;
+    } catch (error) {
+      console.error('RAG mock error:', error);
+      return this.getFallbackResponse(message);
+    }
+  }
+
+  // Generate deterministic mock embedding (1536 dims) from text
+  private generateMockEmbedding(text: string): number[] {
+    // Use text hash as seed for reproducibility
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      const char = text.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+
+    const seed = Math.abs(hash) % 1000;
+    const embedding = [];
+
+    for (let i = 0; i < 1536; i++) {
+      const x = Math.sin(seed + i * 0.1) * 10000;
+      embedding.push(x - Math.floor(x));
+    }
+
+    // Normalize (L2 norm)
+    const norm = Math.sqrt(embedding.reduce((sum, x) => sum + x * x, 0));
+    return embedding.map((x) => x / norm);
+  }
+
+  // Fallback responses if Supabase fails
+  private getFallbackResponse(message: string): string {
+    const msg = message.toLowerCase();
+
+    if (msg.includes('eneagrama') || msg.includes('personalidad') || msg.includes('disc'))
+      return 'Sergi es Eneagrama 1w9 con perfil DISC DC. Tiene principios fuertes pero es flexible. Resultados-oriented y calidad-focused.';
+    if (msg.includes('stack') || msg.includes('tecnolog'))
+      return 'Stack: Angular (frontend), Node.js/Express (backend), PostgreSQL (datos), AWS/Vercel (cloud), Claude API (IA).';
+    if (msg.includes('proyecto'))
+      return 'Proyectos: CsFinance (plataforma inversión), DevHub (gestor developers), Portfolio Assistant (lo que estás usando).';
+    if (msg.includes('experiencia') || msg.includes('trabajo'))
+      return 'Trabajó en SPLAI (IA aplicada a BI) y Templo Esports. Especialista en full-stack y IA aplicada.';
+
+    return 'Soy el asistente RAG de Sergi. Pregúntame sobre su stack, skills, proyectos, experiencia o personalidad.';
   }
 }
