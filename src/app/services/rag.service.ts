@@ -137,6 +137,8 @@ export class RagService {
     try {
       // 1. Generate mock embedding from message (deterministic, based on message text)
       const embedding = this.generateMockEmbedding(message);
+      console.log('[RAG] Query:', message);
+      console.log('[RAG] Embedding generated (1536 dims)');
 
       // 2. Query Supabase for similar chunks
       const { data: chunks, error } = await this.supabase.rpc(
@@ -147,24 +149,30 @@ export class RagService {
         }
       );
 
+      console.log('[RAG] Supabase response:', { chunks: chunks?.length || 0, error });
+
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('[RAG] Supabase error:', error);
         return this.getFallbackResponse(message);
       }
 
       if (!chunks || chunks.length === 0) {
-        return 'No encontré información relacionada con tu pregunta. ¿Puedes intentar con otra pregunta?';
+        console.log('[RAG] No chunks found, using fallback');
+        return this.getFallbackResponse(message);
       }
 
       // 3. Build response from retrieved chunks (RAG)
+      console.log('[RAG] Retrieved chunks:', chunks.map((c: any) => c.source));
       const context = chunks
         .map((chunk: any) => chunk.content)
         .join(' ')
         .substring(0, 500);
 
-      return `Basándome en mi conocimiento: ${context}`;
+      const response = `Basándome en mi conocimiento: ${context}`;
+      console.log('[RAG] Response length:', response.length);
+      return response;
     } catch (error) {
-      console.error('RAG mock error:', error);
+      console.error('[RAG] Error:', error);
       return this.getFallbackResponse(message);
     }
   }

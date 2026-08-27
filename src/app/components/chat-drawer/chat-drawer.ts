@@ -65,8 +65,10 @@ export class ChatDrawer implements AfterViewChecked {
 
     // Call RAG service
     let fullResponse = '';
+    console.log('[Chat] Sending message:', userMessage.content);
     this.ragService.chat(userMessage.content, this.messages.slice(0, -1)).subscribe({
       next: (chunk: string) => {
+        console.log('[Chat] Received chunk:', chunk.length, 'chars');
         fullResponse += chunk;
         // Update placeholder in real-time
         if (this.messages.length > 0) {
@@ -76,17 +78,18 @@ export class ChatDrawer implements AfterViewChecked {
         }
       },
       error: (error: any) => {
-        console.error('Chat error:', error);
+        console.error('[Chat] Error:', error);
         this.isLoading = false;
         this.errorMessage = 'Error al procesar tu pregunta. Intenta de nuevo.';
 
         // Remove placeholder
-        if (this.messages[this.messages.length - 1].content === 'Escribiendo...') {
+        if (this.messages[this.messages.length - 1]?.content === 'Escribiendo...') {
           this.messages.pop();
         }
         this.cdr.markForCheck();
       },
       complete: () => {
+        console.log('[Chat] Response complete, length:', fullResponse.length);
         this.isLoading = false;
         const lastMessage = this.messages[this.messages.length - 1];
         if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === 'Escribiendo...') {
