@@ -146,13 +146,15 @@ export class RagService {
         .from('knowledge_chunks')
         .select('id, content, source');
 
+      console.log('[RAG] Fetch response:', { data: allChunks, error });
+
       if (error) {
         console.error('[RAG] Supabase error:', error);
         return this.getFallbackResponse(message);
       }
 
       if (!allChunks || allChunks.length === 0) {
-        console.log('[RAG] No chunks in database');
+        console.log('[RAG] No chunks in database:', { allChunks, isNull: allChunks === null, isArray: Array.isArray(allChunks) });
         return this.getFallbackResponse(message);
       }
 
