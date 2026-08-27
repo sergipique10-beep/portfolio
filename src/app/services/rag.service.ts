@@ -79,53 +79,33 @@ export class RagService {
         }
       }
 
-      // List of all valid keyword variations
-      const allValidKeywords = [
-        'hardskills', 'hard skills', 'skill', 'habilidad', 'angular', 'react', 'node', 'python', 'typescript', 'backend', 'frontend', 'stack', 'tecnolog', 'framework',
-        'softskills', 'soft skills', 'liderazgo', 'comunicación', 'personalidad', 'disc', 'eneagrama', 'eneatipo', 'caracter',
-        'proyecto', 'csfinance', 'devhub', 'portfolio', 'aplicación', 'plataforma', 'app',
-        'trabajo', 'experiencia', 'splai', 'templo', 'empresa', 'laboral', 'carrera',
-        'ia', 'ai', 'inteligencia artificial', 'llm', 'embeddings', 'machine learning'
-      ];
-
+      // Simple: if query has no category AND no specific keywords, use fallback
+      const mainKeywords = ['skill', 'habilidad', 'stack', 'tecnolog', 'proyecto', 'trabajo', 'experiencia', 'ia', 'personalidad', 'eneagrama', 'disc'];
       const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+      const hasMainKeyword = queryWords.some(word => mainKeywords.some(kw => kw.includes(word) || word.includes(kw.slice(0, 3))));
 
-      // Check if ANY query word matches our valid keywords
-      const hasValidKeyword = queryWords.some(word =>
-        allValidKeywords.some(kw => kw.includes(word) || word.includes(kw.slice(0, 4)))
-      );
+      console.log('[RAG] Category:', detectedCategory, '| Has main keyword:', hasMainKeyword);
 
-      if (!hasValidKeyword && !detectedCategory) {
-        console.log('[RAG] No valid keywords found - using fallback immediately');
+      // If no category AND no main keyword, use fallback
+      if (!detectedCategory && !hasMainKeyword) {
+        console.log('[RAG] → Using fallback (no relevant keywords)');
         return [];
       }
 
-      const scored = allChunks.map((chunk: any) => {
-        const contentLower = chunk.content.toLowerCase();
-        let score = 0;
+      // Otherwise search by category
+      if (detectedCategory) {
+        const categoryKeywords = categories[detectedCategory as keyof typeof categories];
+        const scored = allChunks.map((chunk: any) => {
+          const contentLower = chunk.content.toLowerCase();
+          const score = categoryKeywords.some(kw => contentLower.includes(kw)) ? 1 : 0;
+          return { ...chunk, score };
+        });
 
-        // Only score if there's a category or valid keyword match
-        if (detectedCategory) {
-          const categoryKeywords = categories[detectedCategory as keyof typeof categories];
-          if (categoryKeywords.some(kw => contentLower.includes(kw))) {
-            score = 5;
-          }
-        } else {
-          // Score only if valid keyword found in query
-          for (const word of queryWords) {
-            if (allValidKeywords.some(kw => kw.includes(word) || word.includes(kw.slice(0, 4)))) {
-              if (contentLower.includes(word)) {
-                score += 3;
-              }
-            }
-          }
-        }
+        const relevant = scored.filter((c: any) => c.score > 0);
+        return relevant.length > 0 ? relevant.sort((a: any, b: any) => b.score - a.score).slice(0, 3) : [];
+      }
 
-        return { ...chunk, score };
-      });
-
-      const relevant = scored.filter((c: any) => c.score > 0);
-      return relevant.length > 0 ? relevant.sort((a: any, b: any) => b.score - a.score).slice(0, 3) : [];
+      return [];
     } catch (error) {
       console.error('[RAG] Keyword extraction error:', error);
       return [];
