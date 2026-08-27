@@ -136,12 +136,12 @@ export class RagService {
     });
   }
 
-  // RAG retrieval using Supabase + Gemini embeddings
+  // RAG retrieval using Supabase + mock embeddings (Gemini not available)
   private async ragMockWithSupabase(message: string): Promise<string> {
     try {
-      // 1. Generate embedding from message using Gemini API
+      // 1. Generate embedding from message using mock (Gemini API key issues)
       console.log('[RAG] Query:', message);
-      const embedding = await this.generateGeminiEmbedding(message);
+      const embedding = this.generateMockEmbedding(message);
 
       // 2. Query Supabase for similar chunks
       const { data: chunks, error } = await this.supabase.rpc(
@@ -183,7 +183,7 @@ export class RagService {
   // Generate real embedding using Gemini API (free tier)
   private async generateGeminiEmbedding(text: string): Promise<number[]> {
     try {
-      const model = this.gemini.getGenerativeModel({ model: 'embedding-004' });
+      const model = this.gemini.getGenerativeModel({ model: 'text-embedding-004' });
       const result = await model.embedContent(text);
       console.log('[Gemini] Embedding generated:', result.embedding.values.length, 'dims');
       return result.embedding.values;
