@@ -161,4 +161,106 @@ All tasks reviewed for conflicts — scan clean.
 2. ANTHROPIC_API_KEY empty (blocks /api/chat responses)
 3. Mock embeddings in DB (real OpenAI embeddings need active account)
 
+### Additional: Mock Mode for Testing
+**Status:** IMPLEMENTED (commit b0f6c1d)
+
+**Feature:** Toggle mode in RagService
+- `useMockMode = true` (default) — free testing without API costs
+- `useMockMode = false` — switch to real API when ready
+- Mock responses: stack, skills, projects, experiencia, personalidad, default
+- Character-by-character streaming (30ms delay) for natural typing effect
+- Keyword matching for contextual responses
+
+**Cost Analysis:**
+- ✅ Mock mode: $0
+- ✅ Gemini API (free tier): ~free (quota: 15 requests/min)
+- ❌ Claude/Anthropic: $0.002-0.03 per 1K tokens (paid)
+- ❌ OpenAI embeddings: $0.02 per 1M tokens (paid, needed for semantic search)
+
+**Recommendation for future:**
+1. Keep mock mode for development/demo
+2. Implement Gemini API for real responses (free tier + low cost)
+3. Replace OpenAI embeddings mock with real ones when budget allows
+
+---
+
+## **SESIÓN COMPLETADA — Resumen Ejecutivo**
+
+### **Tareas Completadas (4/6 phases)**
+
+| Phase | Status | Commits | Time |
+|-------|--------|---------|------|
+| P1: Supabase Setup | ✅ DONE | 57969001c, 668cf26 | (previo) |
+| P2: Backend APIs | ✅ DONE | 44571c4, 714edb6 | ~1h |
+| P3: Data Ingestion | ✅ DONE | 96b4efd | ~30m |
+| P4: Frontend | ✅ DONE | 22c295f, ed15388 | ~1.5h |
+| P5: Testing | ⏳ PENDING | — | — |
+| P6: Launch | ⏳ PENDING | — | — |
+
+### **Deliverables**
+
+✅ Backend:
+- 2 Vercel Functions (POST /api/chat, POST /api/seed-vectors)
+- Rate limiting, validation, error handling
+- 28 passing unit tests
+
+✅ Data:
+- 12 semantic chunks in Supabase
+- Knowledge base on CV, skills, projects, personality
+- Similarity search (pgvector HNSW index)
+
+✅ Frontend:
+- RagService (streaming HTTP client)
+- Babysharky component (animated mascot, 80x80px fixed)
+- Chat Drawer (400px slide-in panel)
+- MessageItem sub-component
+- CSS animations (levitate, glow, slide-in)
+- Mobile responsive
+
+✅ Build:
+- Angular build successful (240kB bundle)
+- All TypeScript compiles
+- Mock mode for free testing
+
+### **Blockers Status**
+
+| Blocker | Severity | Workaround |
+|---------|----------|-----------|
+| ANTHROPIC_API_KEY | HIGH | ✅ Mock mode (free) or use Gemini |
+| OpenAI API quota | MEDIUM | ✅ Mock embeddings (non-semantic but functional) |
+| Vercel dev server | LOW | Can test build locally, deploy when ready |
+
+### **Next Steps**
+
+**Phase 5: Testing (deferred)**
+- E2E tests with Playwright
+- Mobile testing
+- Performance profiling (Lighthouse)
+- Browser testing of streaming UI
+
+**Phase 6: Launch (deferred)**
+- Deploy to Vercel
+- Smoke testing in production
+- Monitoring & error tracking
+- User feedback collection
+
+### **Technical Debt**
+
+- SASS deprecation warnings (darken → color.scale) — minor
+- Service-role key still needs manual dashboard copy (deferred to Phase 6)
+- Real OpenAI embeddings need budget (currently mock)
+
+---
+
+## **Git Log (This Session)**
+
+```
+b0f6c1d feat(rag): add mock mode to RagService for free testing
+ed15388 docs(rag): record Task 4 (Phase 4 Frontend) completion
+22c295f feat(rag): Phase 4 - frontend components (Babysharky + Chat Drawer)
+96b4efd feat(rag): Phase 3 - data ingestion and knowledge base population
+714edb6 docs(rag): record Task 2 completion and blockers
+44571c4 feat(rag): implement Phase 2 backend APIs (/api/chat, /api/seed-vectors)
+```
+
 ### Task Progress continuing...
