@@ -136,37 +136,49 @@ export class RagService {
     });
   }
 
-  // RAG retrieval using Supabase + mock embeddings (Gemini not available)
+  // RAG retrieval using keyword search (no embeddings needed)
   private async ragMockWithSupabase(message: string): Promise<string> {
     try {
-      // 1. Generate embedding from message using mock (Gemini API key issues)
       console.log('[RAG] Query:', message);
-      const embedding = this.generateMockEmbedding(message);
 
-      // 2. Query Supabase for similar chunks
-      const { data: chunks, error } = await this.supabase.rpc(
-        'match_knowledge_chunks',
-        {
-          query_embedding: embedding,
-          match_count: 3,
-        }
-      );
-
-      console.log('[RAG] Supabase response:', { chunks: chunks?.length || 0, error });
+      // 1. Fetch all chunks from Supabase
+      const { data: allChunks, error } = await this.supabase
+        .from('knowledge_chunks')
+        .select('id, content, source');
 
       if (error) {
         console.error('[RAG] Supabase error:', error);
         return this.getFallbackResponse(message);
       }
 
-      if (!chunks || chunks.length === 0) {
-        console.log('[RAG] No chunks found, using fallback');
+      if (!allChunks || allChunks.length === 0) {
+        console.log('[RAG] No chunks in database');
+        return this.getFallbackResponse(message);
+      }
+
+      // 2. Keyword search: find chunks matching query words
+      const queryWords = message.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+      const scored = allChunks.map((chunk: any) => {
+        const contentLower = chunk.content.toLowerCase();
+        const score = queryWords.filter(word => contentLower.includes(word)).length;
+        return { ...chunk, score };
+      });
+
+      const relevantChunks = scored
+        .filter((c: any) => c.score > 0)
+        .sort((a: any, b: any) => b.score - a.score)
+        .slice(0, 3);
+
+      console.log('[RAG] Keyword search results:', relevantChunks.length, 'chunks');
+
+      if (relevantChunks.length === 0) {
+        console.log('[RAG] No matching chunks, using fallback');
         return this.getFallbackResponse(message);
       }
 
       // 3. Build response from retrieved chunks (RAG)
-      console.log('[RAG] Retrieved chunks:', chunks.map((c: any) => c.source));
-      const context = chunks
+      console.log('[RAG] Retrieved chunks:', relevantChunks.map((c: any) => c.source));
+      const context = relevantChunks
         .map((chunk: any) => chunk.content)
         .join(' ')
         .substring(0, 500);
