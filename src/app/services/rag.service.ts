@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { createClient } from '@supabase/supabase-js';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -15,6 +16,9 @@ export class RagService {
   private supabase = createClient(
     'https://kjrykbcbsugkaxhsahex.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqcnlrYmNic3Vna2F4aHNhaGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3OTE4NzIsImV4cCI6MjEwMzM2Nzg3Mn0.EHQIVjhGx6vrDSNGGh8z_twqbU5_bNphNFIJ_CbcRK8'
+  );
+  private gemini = new GoogleGenerativeAI(
+    'REDACTED_GOOGLE_API_KEY' // Free tier key
   );
 
   // Send message and receive streaming response via Server-Sent Events
@@ -132,13 +136,12 @@ export class RagService {
     });
   }
 
-  // RAG retrieval using Supabase + mock embeddings
+  // RAG retrieval using Supabase + Gemini embeddings
   private async ragMockWithSupabase(message: string): Promise<string> {
     try {
-      // 1. Generate mock embedding from message (deterministic, based on message text)
-      const embedding = this.generateMockEmbedding(message);
+      // 1. Generate real embedding from message using Gemini API
       console.log('[RAG] Query:', message);
-      console.log('[RAG] Embedding generated (1536 dims)');
+      const embedding = await this.generateGeminiEmbedding(message);
 
       // 2. Query Supabase for similar chunks
       const { data: chunks, error } = await this.supabase.rpc(
@@ -177,25 +180,32 @@ export class RagService {
     }
   }
 
-  // Generate deterministic mock embedding (1536 dims) from text
+  // Generate real embedding using Gemini API (free tier)
+  private async generateGeminiEmbedding(text: string): Promise<number[]> {
+    try {
+      const model = this.gemini.getGenerativeModel({ model: 'embedding-001' });
+      const result = await model.embedContent(text);
+      console.log('[Gemini] Embedding generated:', result.embedding.values.length, 'dims');
+      return result.embedding.values;
+    } catch (error) {
+      console.error('[Gemini] Embedding error:', error);
+      // Fallback to mock if Gemini fails
+      return this.generateMockEmbedding(text);
+    }
+  }
+
+  // Fallback: Generate mock embedding if Gemini is unavailable
   private generateMockEmbedding(text: string): number[] {
-    // Use text hash as seed for reproducibility
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
-      const char = text.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32bit integer
+      hash = (hash << 5) - hash + text.charCodeAt(i);
     }
-
     const seed = Math.abs(hash) % 1000;
     const embedding = [];
-
-    for (let i = 0; i < 1536; i++) {
+    for (let i = 0; i < 768; i++) {
       const x = Math.sin(seed + i * 0.1) * 10000;
       embedding.push(x - Math.floor(x));
     }
-
-    // Normalize (L2 norm)
     const norm = Math.sqrt(embedding.reduce((sum, x) => sum + x * x, 0));
     return embedding.map((x) => x / norm);
   }
