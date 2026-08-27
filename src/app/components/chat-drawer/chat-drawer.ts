@@ -72,7 +72,7 @@ export class ChatDrawer implements AfterViewChecked {
     // Call RAG service
     let fullResponse = '';
     console.log('[Chat] Sending message:', messageContent);
-    this.ragService.chat(userMessage.content, this.messages.slice(0, -1)).subscribe({
+    this.ragService.chat(userMessage.content).subscribe({
       next: (chunk: string) => {
         console.log('[Chat] Received chunk:', chunk.length, 'chars');
         fullResponse += chunk;

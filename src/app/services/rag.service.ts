@@ -41,19 +41,13 @@ export class RagService {
   };
 
   // Send message and receive streaming response
-  chat(message: string, chatHistory: ChatMessage[]): Observable<string> {
+  chat(message: string): Observable<string> {
     return new Observable((subscriber) => {
-      // Include chat history context to improve relevance (exclude the
-      // current message itself, which chatHistory may already contain)
-      const contextFromHistory = chatHistory
-        .filter(m => m.content !== message)
-        .slice(-2) // Last 2 messages for context
-        .map(m => m.content)
-        .join(' ');
-
-      const enhancedQuery = contextFromHistory ? `${message} (contexto previo: ${contextFromHistory})` : message;
-
-      this.ragMockWithSupabase(enhancedQuery)
+      // Search is purely keyword-based with no coreference resolution, so
+      // folding previous turns into the query only pollutes term matching —
+      // e.g. asking "eneatipo" then "proyectos" would drag personality
+      // chunks into the projects answer. Each query is scored standalone.
+      this.ragMockWithSupabase(message)
         .then((response) => {
           // Stream response character by character with delay
           let index = 0;
