@@ -29,11 +29,24 @@ export class RagService {
     tecnolog: ['stack', 'frameworks', 'herramientas', 'backend', 'frontend'],
   };
 
+  // Maps a chunk's `source` category to terms that imply it, even when those
+  // words never literally appear in the chunk content (e.g. "proyectos" never
+  // appears inside the CsFinance/DevHub chunks themselves).
+  private sourceKeywords: Record<string, string[]> = {
+    skills: ['skills', 'habilidades', 'stack', 'tecnolog', 'tecnología', 'lenguaje', 'framework', 'herramienta', 'herramientas', 'frontend', 'backend', 'competencias'],
+    projects: ['proyecto', 'proyectos', 'project', 'aplicación', 'aplicaciones', 'plataforma', 'crear', 'construido', 'build'],
+    trajectory: ['experiencia', 'trabajo', 'empresa', 'laboral', 'carrera', 'puesto', 'profesional'],
+    personality: ['personalidad', 'softskills', 'disc', 'eneagrama', 'eneatipo', 'carácter', 'rasgo', 'blandas'],
+    cv: ['quien', 'quién', 'perfil', 'resumen', 'presentate', 'presentación'],
+  };
+
   // Send message and receive streaming response
   chat(message: string, chatHistory: ChatMessage[]): Observable<string> {
     return new Observable((subscriber) => {
-      // Include chat history context to improve relevance
+      // Include chat history context to improve relevance (exclude the
+      // current message itself, which chatHistory may already contain)
       const contextFromHistory = chatHistory
+        .filter(m => m.content !== message)
         .slice(-2) // Last 2 messages for context
         .map(m => m.content)
         .join(' ');
@@ -128,7 +141,12 @@ export class RagService {
         const hasAnyBaseTerm = baseQueryTerms.some(term => contentLower.includes(term));
         const exactPhraseBoost = hasAnyBaseTerm ? 1.5 : 1;
 
-        const score = normalizedTF * exactPhraseBoost;
+        // Category boost: query terms that describe this chunk's topic even
+        // when those words never appear literally in the chunk content
+        const catKeywords = this.sourceKeywords[chunk.source] || [];
+        const categoryBoost = baseQueryTerms.some(term => catKeywords.includes(term)) ? 1 : 0;
+
+        const score = normalizedTF * exactPhraseBoost + categoryBoost;
         return { ...chunk, score, termFrequency };
       });
 
