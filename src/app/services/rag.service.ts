@@ -29,30 +29,119 @@ export class RagService {
     return this.chatMock(message);
   }
 
-  // RAG with Ollama or fallback to keyword search
+  // RAG with Ollama or fallback to keyword search - streams response directly
   private chatMock(message: string): Observable<string> {
     return new Observable((subscriber) => {
-      (this.useOllama ? this.ragWithOllama(message) : this.ragMockWithSupabase(message))
-        .then((response) => {
-          // Stream response character by character with delay
-          let index = 0;
-          const interval = setInterval(() => {
-            if (index < response.length) {
-              subscriber.next(response[index]);
-              index++;
-            } else {
-              clearInterval(interval);
-              subscriber.complete();
-            }
-          }, 30); // 30ms per character for natural typing effect
-
-          return () => clearInterval(interval);
-        })
+      (this.useOllama ? this.ragWithOllamaStream(message, subscriber) : this.ragMockWithSupabaseStreamed(message, subscriber))
         .catch((error) => {
           console.error('RAG error:', error);
           subscriber.error(error);
         });
     });
+  }
+
+  // Stream Ollama response directly
+  private async ragWithOllamaStream(message: string, subscriber: any): Promise<void> {
+    try {
+      console.log('[RAG] Ollama Query:', message);
+
+      // 1. Find relevant chunks
+      const chunks = await this.getRelevantChunksByKeywords(message);
+      console.log('[RAG] Chunks found:', chunks.length);
+
+      if (chunks.length === 0) {
+        const fallback = this.getFallbackResponse(message);
+        this.streamResponse(fallback, subscriber);
+        return;
+      }
+
+      // 2. Build context
+      const context = chunks.map((c: any) => c.content).join('\n\n');
+      const systemPrompt = `Eres un asistente sobre Sergi Piqué. Responde de manera conversacional y natural en español.
+Usa SOLO la información proporcionada. Sé conciso y amable.`;
+
+      // 3. Stream Ollama response
+      console.log('[RAG] Streaming Ollama response...');
+      await this.streamOllamaResponse(systemPrompt, context, subscriber);
+    } catch (error) {
+      console.error('[RAG] Ollama stream error:', error);
+      subscriber.error(error);
+    }
+  }
+
+  // Stream response character by character
+  private streamResponse(response: string, subscriber: any): void {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < response.length) {
+        subscriber.next(response[index]);
+        index++;
+      } else {
+        clearInterval(interval);
+        subscriber.complete();
+      }
+    }, 30);
+  }
+
+  // Stream Ollama response chunks
+  private async streamOllamaResponse(prompt: string, context: string, subscriber: any): Promise<void> {
+    try {
+      const fullPrompt = `${prompt}\n\nContexto:\n${context}`;
+
+      const stream = await fetch(`${this.OLLAMA_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'mistral',
+          prompt: fullPrompt,
+          stream: true,
+          temperature: 0.7,
+        }),
+      });
+
+      if (!stream.ok) {
+        throw new Error(`Ollama error: ${stream.status}`);
+      }
+
+      const reader = stream.body?.getReader();
+      if (!reader) throw new Error('No stream');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const text = new TextDecoder().decode(value);
+        const lines = text.split('\n').filter(l => l.trim());
+
+        for (const line of lines) {
+          try {
+            const json = JSON.parse(line);
+            if (json.response) {
+              // Stream each character with delay
+              for (const char of json.response) {
+                subscriber.next(char);
+                await new Promise(resolve => setTimeout(resolve, 30));
+              }
+            }
+          } catch {}
+        }
+      }
+
+      subscriber.complete();
+    } catch (error) {
+      console.error('[RAG] Stream error:', error);
+      subscriber.error(error);
+    }
+  }
+
+  // Fallback streamed response (for when Ollama is unavailable)
+  private async ragMockWithSupabaseStreamed(message: string, subscriber: any): Promise<void> {
+    try {
+      const response = await this.ragMockWithSupabase(message);
+      this.streamResponse(response, subscriber);
+    } catch (error) {
+      subscriber.error(error);
+    }
   }
 
   // Ollama embedding generation
