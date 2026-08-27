@@ -92,4 +92,73 @@ All tasks reviewed for conflicts — scan clean.
 - ✓ RPC similarity search functional
 - ✓ Table indices (HNSW, metadata GIN) working
 
+### Task 4: Frontend Components & Integration
+**Status:** DONE (commit 22c295f)
+
+**Implementation:**
+
+1. **RagService** (`src/app/services/rag.service.ts`)
+   - HTTP client for /api/chat endpoint
+   - Streaming support via fetch + Server-Sent Events parsing
+   - Observable-based API
+   - Chat history management (last 10 messages)
+   - Error handling
+
+2. **Babysharky Component** (`src/app/components/babysharky/`)
+   - Fixed floating mascot (80x80px, bottom-right)
+   - SVG inline rendering (baby shark illustration)
+   - Animations: levitate (4s), glow (2s), pulse badge
+   - Hover effect (scale 1.1x, enhanced glow)
+   - Optional unread message badge
+   - Standalone component with output event
+
+3. **Chat Drawer Component** (`src/app/components/chat-drawer/`)
+   - Slide-in panel from right (400px width)
+   - Responsive (100% on mobile <768px)
+   - Header with title + close button
+   - Messages container with auto-scroll
+   - Input textarea with send button
+   - Loading spinner during response
+   - Error message display
+   - Empty state with welcome message
+   - Keyboard support (Ctrl+Enter to send)
+
+4. **MessageItem Sub-Component** (`src/app/components/chat-drawer/message-item/`)
+   - User messages: right-aligned, light gray bg
+   - Assistant messages: left-aligned, light blue bg
+   - Timestamp formatting (HH:MM)
+   - Message bubbles with rounded corners
+   - Slide-up animation on entry
+
+**Styling & Animations:**
+- Levitate: ±10px vertical bob (4s loop)
+- Glow: 8px-15px drop-shadow pulse (2s loop)
+- Pulse: badge scale 1-1.2x (2s loop)
+- Slide-in: drawer 300ms cubic-bezier transition
+- Spinner: 360° rotation (0.8s loop)
+- Fade-in: backdrop animation
+
+**Integration:**
+- Added imports to app.ts (Babysharky, ChatDrawer)
+- Added component state (chatDrawerOpen boolean)
+- Toggle methods (toggleChat, onChatClose)
+- Template added to app.html
+- No breaking changes to existing components
+
+**Build Status:**
+- ✓ ng build successful (240kB main bundle)
+- ✓ All TypeScript compiles without errors
+- ⚠️ SASS deprecation warnings (non-critical: darken() → color.scale())
+
+**Testing Status:**
+- ✓ Components created and integrated
+- ✓ TypeScript compilation verified
+- ⚠️ Cannot test streaming without running backend
+- ⚠️ Browser testing deferred (needs /api/chat + ANTHROPIC_API_KEY)
+
+**Blockers for next phase:**
+1. Backend server not running (vercel dev failed earlier)
+2. ANTHROPIC_API_KEY empty (blocks /api/chat responses)
+3. Mock embeddings in DB (real OpenAI embeddings need active account)
+
 ### Task Progress continuing...
