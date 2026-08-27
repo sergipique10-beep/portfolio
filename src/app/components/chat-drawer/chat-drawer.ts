@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RagService, ChatMessage } from '../../services/rag.service';
@@ -22,7 +22,10 @@ export class ChatDrawer implements AfterViewChecked {
   isLoading = false;
   errorMessage = '';
 
-  constructor(private ragService: RagService) {}
+  constructor(
+    private ragService: RagService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngAfterViewChecked() {
     // Auto-scroll to bottom
@@ -68,6 +71,8 @@ export class ChatDrawer implements AfterViewChecked {
         // Update placeholder in real-time
         if (this.messages.length > 0) {
           this.messages[this.messages.length - 1].content = fullResponse;
+          // CRITICAL: Force change detection for streaming updates
+          this.cdr.markForCheck();
         }
       },
       error: (error: any) => {
@@ -79,6 +84,7 @@ export class ChatDrawer implements AfterViewChecked {
         if (this.messages[this.messages.length - 1].content === 'Escribiendo...') {
           this.messages.pop();
         }
+        this.cdr.markForCheck();
       },
       complete: () => {
         this.isLoading = false;
@@ -86,6 +92,7 @@ export class ChatDrawer implements AfterViewChecked {
         if (lastMessage && lastMessage.role === 'assistant' && lastMessage.content === 'Escribiendo...') {
           lastMessage.content = fullResponse || 'No pude procesar tu pregunta.';
         }
+        this.cdr.markForCheck();
       },
     });
   }

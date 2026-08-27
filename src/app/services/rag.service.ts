@@ -119,17 +119,32 @@ export class RagService {
         'Esa es una pregunta interesante. Basado en mi conocimiento sobre Sergi, puedo decirte que es un fullstack engineer especializado en IA con mentalidad de product. ¿Hay algo más específico que quieras saber?',
     };
 
-    // Match keywords
+    // Match keywords with weighted scoring
     const msg = message.toLowerCase();
-    let response = mockResponses['default'];
+    const keywords = {
+      stack: ['stack', 'tecnolog', 'angular', 'node', 'react', 'database', 'aws', 'vercel', 'backend', 'frontend'],
+      skills: ['skill', 'fortaleza', 'especialidad', 'experto', 'puedo', 'sé', 'conozco'],
+      projects: ['proyecto', 'proyecto', 'csfinance', 'devhub', 'hiciste', 'construiste', 'desarrollaste'],
+      experiencia: ['experiencia', 'trabajo', 'empresa', 'splai', 'templo', 'laboral', 'carrera'],
+      personalidad: ['personali', 'eneagrama', 'disc', 'tipo', 'perfil', 'carácter', 'quién eres', 'cómo eres'],
+      hola: ['hola', 'hi', 'hey', 'saludos', 'buenos'],
+    };
 
-    if (msg.includes('stack') || msg.includes('tecnolog')) response = mockResponses['stack'];
-    else if (msg.includes('skill') || msg.includes('fortaleza')) response = mockResponses['skills'];
-    else if (msg.includes('proyecto')) response = mockResponses['projects'];
-    else if (msg.includes('experiencia') || msg.includes('trabajo')) response = mockResponses['experiencia'];
-    else if (msg.includes('personali') || msg.includes('eneagrama') || msg.includes('disc'))
-      response = mockResponses['personalidad'];
-    else if (msg.includes('hola') || msg.includes('hi')) response = mockResponses['hola'];
+    let response = mockResponses['default'];
+    let bestMatch = 'default';
+    let bestScore = 0;
+
+    for (const [category, words] of Object.entries(keywords)) {
+      const score = words.filter((word) => msg.includes(word)).length;
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = category;
+      }
+    }
+
+    if (bestScore > 0 && mockResponses[bestMatch]) {
+      response = mockResponses[bestMatch];
+    }
 
     // Stream response character by character with delay
     return new Observable((subscriber) => {
