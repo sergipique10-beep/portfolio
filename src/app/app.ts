@@ -1,4 +1,5 @@
 import { Component, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+import { Intro } from './components/intro/intro';
 import { Nav } from './components/nav/nav';
 import { Hero } from './components/hero/hero';
 import { About } from './components/about/about';
@@ -11,7 +12,7 @@ import { ChatDrawer } from './components/chat-drawer/chat-drawer';
 
 @Component({
   selector: 'app-root',
-  imports: [Nav, Hero, About, Skills, Projects, Contact, Footer, Babysharky, ChatDrawer],
+  imports: [Intro, Nav, Hero, About, Skills, Projects, Contact, Footer, Babysharky, ChatDrawer],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

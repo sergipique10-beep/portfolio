@@ -1,0 +1,11 @@
+@if (active()) {
+  <div class="intro" [class.intro--revealed]="fadingOut()">
+    <canvas #canvas class="intro__rain"></canvas>
+    <div class="intro__terminal" [class.intro__terminal--hidden]="avatarVisible()">
+      <span class="intro__ttext">{{ terminalText() }}</span><span class="intro__cursor"></span>
+    </div>
+    <div class="intro__avatar" [class.intro__avatar--visible]="avatarVisible()">
+      <img src="/assets/intro-avatar.jpg" alt="Sergi Piqué Garcia">
+    </div>
+  </div>
+}
