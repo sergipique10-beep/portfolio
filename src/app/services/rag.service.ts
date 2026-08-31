@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { createClient } from '@supabase/supabase-js';
 
@@ -40,6 +40,76 @@ export class RagService {
     cv: ['quien', 'quién', 'perfil', 'resumen', 'presentate', 'presentación'],
   };
 
+  // Strip accents and lowercase, so "qué"/"que" and "eneágrama"/"eneagrama" compare equal
+  private normalize(str: string): string {
+    return str
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase();
+  }
+
+  // Levenshtein edit distance, used to tolerate typos in query terms
+  private levenshtein(a: string, b: string): number {
+    const dp: number[][] = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+    for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+    for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+      }
+    }
+    return dp[a.length][b.length];
+  }
+
+  // Matches term against word allowing small typos; tolerance scales with word length
+  // so short words stay strict (avoids unrelated words matching by accident)
+  private isFuzzyMatch(term: string, word: string): boolean {
+    if (term === word) return true;
+    const maxDistance = term.length <= 4 ? 1 : term.length <= 8 ? 2 : 3;
+    if (Math.abs(term.length - word.length) > maxDistance) return false;
+    return this.levenshtein(term, word) <= maxDistance;
+  }
+
+  // Recruiter-style questions ("¿deberías contratarlo?", "fortalezas/debilidades")
+  // need an actual argument built from several facts at once, not the single
+  // closest-matching chunk — keyword retrieval alone can't produce that, so
+  // these get a hand-written pitch instead.
+  private recruiterTemplates: { triggers: string[]; response: string }[] = [
+    {
+      triggers: ['contratar', 'contratarlo', 'contratarte', 'contrataria', 'contratarias', 'candidato', 'candidata', 'fichar', 'fichaje', 'recomendarias', 'recomiendas'],
+      response:
+        'Sí, te lo recomiendo. Sergi combina ejecución rápida con estándares de calidad altos: aplica principios SOLID, testing automatizado y code review riguroso, así que no sacrifica arquitectura por velocidad. Ha liderado la arquitectura de una plataforma con miles de usuarios activos en SPLAI, y su eneatipo 1w9 + perfil DISC DC (resultados-oriented, orientado a datos, foco en calidad) encajan bien en entornos donde la corrección y la mejora continua importan. Además tiene mentalidad de producto: no ve el código como un fin, sino como un medio para resolver problemas reales.',
+    },
+    {
+      triggers: ['fortalezas', 'fuertes', 'destaca', 'sobresale'],
+      response:
+        'Sus principales fortalezas: (1) Velocidad + calidad — desarrolla features complejas rápido sin sacrificar arquitectura, aplicando SOLID y testing automatizado. (2) Mentalidad de producto — prioriza resolver problemas reales sobre escribir código por escribirlo. (3) Aprendizaje continuo — explora nuevas tecnologías constantemente, con formación en IA aplicada. (4) Comunicación clara — traduce complejidad técnica a lenguaje accesible, con buena documentación y PRs claros. A nivel de personalidad, su perfil DISC DC aporta liderazgo directo y resistencia bajo presión, y su eneatipo 1w9 aporta un fuerte sentido de responsabilidad e integridad.',
+    },
+    {
+      triggers: ['debilidades', 'debiles', 'flaquea', 'defecto', 'defectos', 'mejorar'],
+      response:
+        'Es honesto reconocer un par de áreas: su eneatipo 1w9 puede derivar en perfeccionismo (mitigado por el ala 9, que le da flexibilidad) y una autocrítica interna bastante severa. Su perfil DISC DC, orientado a resultados y directo, a veces puede sonar demasiado directo o tener dificultad recibiendo feedback negativo si no está gestionado de forma consciente. En el día a día esto se traduce en alguien exigente consigo mismo y con el equipo — en la mayoría de entornos de calidad es un activo, pero conviene saberlo de antemano.',
+    },
+    {
+      triggers: ['diferencia', 'destacas', 'unico', 'especial', 'diferente'],
+      response:
+        'Lo que lo diferencia es la combinación de rigor técnico y pragmatismo: puede liderar arquitectura escalable (lo hizo en SPLAI, con miles de usuarios activos) sin perder de vista el impacto real del producto. Además tiene experiencia concreta integrando IA en producción (Claude API, OpenAI, sistemas RAG) más allá de la teoría — este mismo chat es un ejemplo. Y su perfil de personalidad (1w9 + DISC DC) hace que la calidad y la integridad no sean un discurso, sino cómo trabaja por defecto.',
+    },
+  ];
+
+  // Checks the query against recruiter-intent trigger words (fuzzy, so
+  // "contrataría"/"contratarlo" etc. all match the same template)
+  private matchRecruiterIntent(queryTerms: string[]): string | null {
+    for (const template of this.recruiterTemplates) {
+      const matched = template.triggers.some(trigger =>
+        queryTerms.some(term => this.isFuzzyMatch(term, trigger))
+      );
+      if (matched) return template.response;
+    }
+    return null;
+  }
+
   // Send message and receive streaming response
   chat(message: string): Observable<string> {
     return new Observable((subscriber) => {
@@ -75,7 +145,22 @@ export class RagService {
     try {
       console.log('[RAG] Query:', message);
 
-      // 1. Fetch all chunks from Supabase
+      // 1. Extract meaningful query terms (remove stop words)
+      const queryLower = this.normalize(message);
+      const stopWords = ['que', 'como', 'donde', 'cuando', 'por', 'para', 'con', 'del', 'de', 'es', 'en', 'y', 'o', 'a', 'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas'];
+      const baseQueryTerms = queryLower
+        .split(/[\s,\.\!\?]+/)
+        .filter(w => w.length > 2 && !stopWords.includes(w));
+
+      // 2. Recruiter-intent questions get a hand-written pitch, skipping
+      // retrieval entirely (no single chunk answers "should I hire him")
+      const recruiterResponse = this.matchRecruiterIntent(baseQueryTerms);
+      if (recruiterResponse) {
+        console.log('[RAG] Matched recruiter intent template');
+        return recruiterResponse;
+      }
+
+      // 3. Fetch all chunks from Supabase
       const { data: allChunks, error } = await this.supabase
         .from('knowledge_chunks')
         .select('id, content, source');
@@ -92,13 +177,6 @@ export class RagService {
         return this.getFallbackResponse(message);
       }
 
-      // 2. Extract meaningful query terms (remove stop words)
-      const queryLower = message.toLowerCase();
-      const stopWords = ['qué', 'cómo', 'dónde', 'cuándo', 'por', 'para', 'con', 'del', 'de', 'es', 'en', 'y', 'o', 'a', 'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas'];
-      const baseQueryTerms = queryLower
-        .split(/[\s,\.\!\?]+/)
-        .filter(w => w.length > 2 && !stopWords.includes(w));
-
       // Expand with synonyms
       const queryTerms = new Set<string>();
       baseQueryTerms.forEach(term => {
@@ -111,34 +189,37 @@ export class RagService {
 
       console.log('[RAG] Base terms:', baseQueryTerms, '| Expanded:', Array.from(queryTerms));
 
-      // 3. Calculate TF-IDF-like scores
+      // 3. Calculate TF-IDF-like scores, with fuzzy matching for typo/accent tolerance
       const queryTermsArray = Array.from(queryTerms);
-      const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
       const scored = allChunks.map((chunk: any) => {
-        const contentLower = chunk.content.toLowerCase();
+        const contentNormalized = this.normalize(chunk.content);
+        const contentWords = contentNormalized.split(/[^a-z0-9]+/).filter(Boolean);
         const contentLength = chunk.content.length;
 
-        // Count term occurrences (TF)
+        // Count term occurrences (TF), tolerating small typos/accent differences
         let termFrequency = 0;
         queryTermsArray.forEach(term => {
-          const escapedTerm = escapeRegex(term);
-          const regex = new RegExp(`\\b${escapedTerm}\\b`, 'g');
-          const matches = contentLower.match(regex);
-          termFrequency += matches ? matches.length : 0;
+          contentWords.forEach(word => {
+            if (this.isFuzzyMatch(term, word)) termFrequency++;
+          });
         });
 
         // Normalize by document length (longer docs shouldn't get huge scores)
         const normalizedTF = termFrequency / Math.sqrt(contentLength / 100);
 
         // Boost for exact phrase matches (if any base term appears)
-        const hasAnyBaseTerm = baseQueryTerms.some(term => contentLower.includes(term));
+        const hasAnyBaseTerm = baseQueryTerms.some(term =>
+          contentWords.some(word => this.isFuzzyMatch(term, word))
+        );
         const exactPhraseBoost = hasAnyBaseTerm ? 1.5 : 1;
 
         // Category boost: query terms that describe this chunk's topic even
         // when those words never appear literally in the chunk content
         const catKeywords = this.sourceKeywords[chunk.source] || [];
-        const categoryBoost = baseQueryTerms.some(term => catKeywords.includes(term)) ? 1 : 0;
+        const categoryBoost = baseQueryTerms.some(term =>
+          catKeywords.some(kw => this.isFuzzyMatch(term, this.normalize(kw)))
+        ) ? 1 : 0;
 
         const score = normalizedTF * exactPhraseBoost + categoryBoost;
         return { ...chunk, score, termFrequency };
