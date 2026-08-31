@@ -1,16 +1,18 @@
 import { Component, inject, signal, HostListener } from '@angular/core';
 import { ScrollService } from '../../scroll.service';
+import { HeroWave } from '../hero-wave/hero-wave';
 
 @Component({
   selector: 'app-hero',
+  imports: [HeroWave],
   templateUrl: './hero.html',
   styleUrl: './hero.scss'
 })
 export class Hero {
   private scroll = inject(ScrollService);
 
-  // El orbe de Spline es pesado (WebGL): en móvil no lo renderizamos, así no se
-  // descarga ni su runtime ni la escena. Solo se monta cuando el grid es de 2 col.
+  // El océano (Three.js) es pesado (WebGL): en móvil no lo renderizamos, así no
+  // se descarga ni su runtime ni la escena. Solo se monta en escritorio.
   showVisual = signal(this.isWide());
 
   private isWide(): boolean {

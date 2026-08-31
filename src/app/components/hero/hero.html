@@ -1,7 +1,7 @@
 <section id="hero" class="hero">
-  <div class="hero__orb hero__orb--1"></div>
-  <div class="hero__orb hero__orb--2"></div>
-  <div class="hero__orb hero__orb--3"></div>
+  @defer (when showVisual()) {
+    <app-hero-wave></app-hero-wave>
+  }
   <div class="hero__noise"></div>
   <div class="hero__lines">
     @for (i of [0,1,2,3,4,5]; track i) {
@@ -20,14 +20,5 @@
         <a class="btn btn--ghost" href="https://github.com/sergipique10-beep" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
-    @if (showVisual()) {
-      <div class="hero__visual">
-        <iframe
-          src="https://my.spline.design/reactiveorb-ejErE7ft5GD1VixigMCYDzp6/?v=3"
-          title="Orbe reactivo 3D"
-          loading="lazy"
-          frameborder="0"></iframe>
-      </div>
-    }
   </div>
 </section>

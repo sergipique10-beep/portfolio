@@ -23,6 +23,7 @@
     "openai": "^7.7.0",
     "rxjs": "~7.8.0",
     "supabase": "^2.116.0",
+    "three": "^0.185.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@angular/cli": "^21.2.8",
     "@angular/compiler-cli": "^21.2.0",
     "@types/node": "^26.4.0",
+    "@types/three": "^0.185.4",
     "@vercel/node": "^8.1.2",
     "dotenv": "^17.4.2",
     "prettier": "^3.8.1",
