@@ -47,13 +47,9 @@
 
 .project-card__top {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 0.5rem;
-}
-
-.project-card__icon {
-  color: $grey-mid;
 }
 
 .project-card__link {
