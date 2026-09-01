@@ -18,6 +18,7 @@ export class HeroWave implements AfterViewInit, OnDestroy {
   private pmremGenerator?: THREE.PMREMGenerator;
   private frameId = 0;
   private resizeObserver?: ResizeObserver;
+  private clock = new THREE.Clock();
 
   ngAfterViewInit() {
     this.init();
@@ -109,8 +110,9 @@ export class HeroWave implements AfterViewInit, OnDestroy {
 
   private animate = () => {
     this.frameId = requestAnimationFrame(this.animate);
+    const delta = this.clock.getDelta();
     if (this.water) {
-      (this.water.material.uniforms['time'].value as number) += 1 / 60;
+      (this.water.material.uniforms['time'].value as number) += delta;
     }
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
