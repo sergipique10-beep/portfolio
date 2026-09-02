@@ -244,7 +244,7 @@ export class RagService {
 
       // Include more context (up to 1500 chars instead of 500)
       const context = relevantChunks
-        .map((chunk: any) => `[${chunk.source}] ${chunk.content}`)
+        .map((chunk: any) => chunk.content)
         .join('\n\n')
         .substring(0, 1500);
 
