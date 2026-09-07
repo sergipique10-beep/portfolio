@@ -1,10 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { TechIcon } from '../tech-icon/tech-icon';
 
 interface SkillGroup {
   label: string;
   items: string[];
 }
+
+let modelViewerLoaded = false;
 
 @Component({
   selector: 'app-skills',
@@ -13,7 +15,39 @@ interface SkillGroup {
   styleUrl: './skills.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class Skills {
+export class Skills implements AfterViewInit, OnDestroy {
+  private host = inject(ElementRef<HTMLElement>);
+  private observer?: IntersectionObserver;
+
+  // <model-viewer> (~250KB) solo se carga cuando esta sección está a punto de
+  // entrar en pantalla, en vez de bloquear el arranque de toda la página.
+  ngAfterViewInit() {
+    if (modelViewerLoaded) return;
+    this.observer = new IntersectionObserver(
+      entries => {
+        if (entries[0]?.isIntersecting) {
+          this.loadModelViewer();
+          this.observer?.disconnect();
+        }
+      },
+      { rootMargin: '400px' }
+    );
+    this.observer.observe(this.host.nativeElement);
+  }
+
+  ngOnDestroy() {
+    this.observer?.disconnect();
+  }
+
+  private loadModelViewer() {
+    if (modelViewerLoaded) return;
+    modelViewerLoaded = true;
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = 'https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js';
+    document.body.appendChild(script);
+  }
+
   skillGroups: SkillGroup[] = [
     {
       label: 'Inteligencia Artificial',
