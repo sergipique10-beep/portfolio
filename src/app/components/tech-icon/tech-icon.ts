@@ -38,7 +38,8 @@ export class TechIcon {
     'Vertex AI': 'devicon-googlecloud-plain colored',
     'Python': 'devicon-python-plain colored',
     'FastAPI': 'devicon-fastapi-plain colored',
-    'Supabase': 'devicon-supabase-plain colored'
+    'Supabase': 'devicon-supabase-plain colored',
+    'Next.js': 'devicon-nextjs-plain'
   };
 
   get iconClass(): string | null {

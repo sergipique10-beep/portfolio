@@ -12,7 +12,15 @@
             <app-tech-icon [name]="project.mainTech"></app-tech-icon>
           </div>
           <div class="project-card__top">
-            <a [href]="project.url" target="_blank" rel="noopener" class="project-card__link" aria-label="Ver en GitHub">
+            @if (project.demoUrl) {
+              <a [href]="project.demoUrl" target="_blank" rel="noopener" class="project-card__link" aria-label="Ver demo en producción" title="Ver demo en producción">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M3 12h18M12 3c2.5 2.7 3.8 6 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-6-3.8-9s1.3-6.3 3.8-9z"/>
+                </svg>
+              </a>
+            }
+            <a [href]="project.url" target="_blank" rel="noopener" class="project-card__link" aria-label="Ver en GitHub" title="Ver en GitHub">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M7 17L17 7M17 7H7M17 7v10"/>
               </svg>

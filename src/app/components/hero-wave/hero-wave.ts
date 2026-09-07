@@ -18,7 +18,16 @@ export class HeroWave implements AfterViewInit, OnDestroy {
   private pmremGenerator?: THREE.PMREMGenerator;
   private frameId = 0;
   private resizeObserver?: ResizeObserver;
+  private visibilityObserver?: IntersectionObserver;
   private clock = new THREE.Clock();
+  // Rendering this scene is expensive (reflection pass + full-screen shader),
+  // so it only runs while the hero is actually on screen and the tab is visible.
+  private inViewport = true;
+  private tabVisible = !document.hidden;
+  private get isVisible() { return this.inViewport && this.tabVisible; }
+  private onVisibilityChange = () => {
+    this.tabVisible = !document.hidden;
+  };
 
   ngAfterViewInit() {
     this.init();
@@ -27,6 +36,8 @@ export class HeroWave implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     cancelAnimationFrame(this.frameId);
     this.resizeObserver?.disconnect();
+    this.visibilityObserver?.disconnect();
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.water?.geometry.dispose();
     (this.water?.material as THREE.Material | undefined)?.dispose();
     this.pmremGenerator?.dispose();
@@ -38,8 +49,8 @@ export class HeroWave implements AfterViewInit, OnDestroy {
     const width = host.clientWidth;
     const height = host.clientHeight;
 
-    const renderer = new THREE.WebGLRenderer({ canvas: this.canvasRef.nativeElement, antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ canvas: this.canvasRef.nativeElement, antialias: false, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(width, height);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -95,6 +106,13 @@ export class HeroWave implements AfterViewInit, OnDestroy {
     this.resizeObserver = new ResizeObserver(() => this.onResize());
     this.resizeObserver.observe(host);
 
+    this.visibilityObserver = new IntersectionObserver(
+      entries => { this.inViewport = entries[0]?.isIntersecting ?? true; },
+      { threshold: 0 }
+    );
+    this.visibilityObserver.observe(host);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+
     this.animate();
   }
 
@@ -110,6 +128,8 @@ export class HeroWave implements AfterViewInit, OnDestroy {
 
   private animate = () => {
     this.frameId = requestAnimationFrame(this.animate);
+    if (!this.isVisible) return;
+
     const delta = this.clock.getDelta();
     if (this.water) {
       (this.water.material.uniforms['time'].value as number) += delta;

@@ -9,6 +9,7 @@ interface Project {
   mainTech: string;   // tecnología destacada (logo grande de la cabecera)
   accent: string;     // color de acento de la cabecera
   url: string;
+  demoUrl?: string;   // app deployada en vivo (si existe)
 }
 
 @Component({
@@ -20,28 +21,29 @@ interface Project {
 export class Projects {
   projects: Project[] = [
     {
-      name: 'FinalProject',
-      description: 'Aplicación full-stack (MERN) con autenticación JWT, gestión de usuarios y subida de imágenes a la nube.',
+      name: 'DevHub',
+      description: 'Plataforma tipo LinkedIn + Fiverr para developers: perfiles profesionales, marketplace de servicios, propuestas y portfolio. Resuelve la fragmentación entre red profesional y venta de servicios freelance en una sola herramienta.',
       tags: ['React', 'Vite', 'Node.js', 'Express', 'MongoDB'],
       mainTech: 'React',
       accent: '#61DAFB',
-      url: 'https://github.com/sergipique10-beep/FinalProject'
+      url: 'https://github.com/sergipique10-beep/DevHub'
     },
     {
-      name: 'CS Finance',
-      description: 'Backend en Python/FastAPI para seguimiento y predicción de precios del mercado de skins, con WebSockets en tiempo real e IA/RAG.',
-      tags: ['Python', 'FastAPI', 'WebSockets', 'Firebase'],
-      mainTech: 'Python',
-      accent: '#3776AB',
-      url: 'https://github.com/sergipique10-beep/LoginCsFinance'
+      name: 'Jarvis',
+      description: 'Asistente personal de IA con voz y memoria propia: orquesta la API de Claude con tool-calling para ejecutar acciones reales bajo un modelo de permisos por riesgo, con memoria persistente en Supabase y un orbe 3D como interfaz visual.',
+      tags: ['Next.js', 'React', 'TypeScript', 'Node.js', 'Claude', 'Supabase'],
+      mainTech: 'Claude',
+      accent: '#D97757',
+      url: 'https://github.com/sergipique10-beep/Starky---Jarvis-Service/tree/feature/module-1-conversational-core',
+      demoUrl: 'https://jarvis-service-xj3w.onrender.com/'
     },
     {
       name: 'TulApp',
-      description: 'Aplicación web de gestión de tareas y productividad, construida con HTML y CSS puro, sin frameworks.',
-      tags: ['HTML5', 'CSS'],
-      mainTech: 'HTML5',
-      accent: '#E34F26',
-      url: 'https://github.com/sergipique10-beep/Tulapp2.0'
+      description: 'App social que conecta a personas mayores de zonas rurales con voluntarios jóvenes para acercarles servicios digitales. Frontend Angular + Ionic + Capacitor (login con Firebase) y backend FastAPI + PostgreSQL con Supabase.',
+      tags: ['Angular', 'Ionic', 'Capacitor', 'Firebase', 'Supabase', 'Python', 'FastAPI'],
+      mainTech: 'Angular',
+      accent: '#DD0031',
+      url: 'https://github.com/Fundacion-Esplai-CC/TulApp'
     },
     {
       name: 'Game4',
@@ -49,7 +51,8 @@ export class Projects {
       tags: ['React', 'Vite', 'TypeScript', 'Express', 'WebSockets'],
       mainTech: 'TypeScript',
       accent: '#3178C6',
-      url: 'https://github.com/sergipique10-beep/game4'
+      url: 'https://github.com/sergipique10-beep/game4',
+      demoUrl: 'https://game4-z9x3.onrender.com/'
     }
   ];
 }

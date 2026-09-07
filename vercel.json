@@ -8,7 +8,7 @@
     "SUPABASE_PUBLISHABLE_KEY",
     "SUPABASE_SERVICE_ROLE_KEY",
     "OPENAI_API_KEY",
-    "ANTHROPIC_API_KEY",
+    "GROQ_API_KEY",
     "RAG_API_KEY"
   ],
   "functions": {

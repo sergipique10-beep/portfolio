@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { validateMessage, validateChatHistory } from './utils/validation';
 import { checkRateLimit, extractClientIp, RateLimitError } from './middleware/rateLimit';
-import { generateEmbedding, streamClaudeResponse } from './utils/llm';
+import { generateEmbedding, streamGroqResponse } from './utils/llm';
 import { searchSimilar } from './utils/supabase';
 
 const SYSTEM_PROMPT = `Eres un asistente RAG sobre Sergi Piqué, un profesional especializado en IA, backend, y full-stack development.
@@ -46,10 +46,14 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     const similarChunks = await searchSimilar(embedding, 8);
 
     if (similarChunks.length === 0) {
-      return res.status(200).json({
-        response: 'Disculpa, no encontré información relevante para tu pregunta. ¿Puedes reformularla?',
-        chunksUsed: 0,
-      });
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.write(
+        `data: ${JSON.stringify({ chunk: 'Disculpa, no encontré información relevante para tu pregunta. ¿Puedes reformularla?' })}\n`
+      );
+      res.write(`data: ${JSON.stringify({ done: true, chunksUsed: 0 })}\n`);
+      return res.end();
     }
 
     // Build context from chunks
@@ -68,12 +72,12 @@ async function handler(req: VercelRequest, res: VercelResponse) {
       { role: 'user' as const, content: message },
     ];
 
-    // Stream Claude response
+    // Stream Groq response
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const responseStream = await streamClaudeResponse(fullSystemPrompt, messages);
+    const responseStream = await streamGroqResponse(fullSystemPrompt, messages);
 
     let totalChars = 0;
     for await (const chunk of responseStream) {
