@@ -26,7 +26,8 @@ export class Projects {
       tags: ['React', 'Vite', 'Node.js', 'Express', 'MongoDB'],
       mainTech: 'React',
       accent: '#61DAFB',
-      url: 'https://github.com/sergipique10-beep/DevHub'
+      url: 'https://github.com/sergipique10-beep/DevHub',
+      demoUrl: 'https://devhub-1-mrp7.onrender.com'
     },
     {
       name: 'Jarvis',
