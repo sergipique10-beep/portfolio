@@ -15,14 +15,14 @@ const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !OPENAI_API_KEY) {
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !GEMINI_API_KEY) {
   console.error(
     '❌ Missing required environment variables. Check .env.local has:\n' +
       '  - SUPABASE_URL\n' +
       '  - SUPABASE_SERVICE_ROLE_KEY\n' +
-      '  - OPENAI_API_KEY'
+      '  - GEMINI_API_KEY'
   );
   process.exit(1);
 }
@@ -103,22 +103,20 @@ const KNOWLEDGE_BASE = [
   },
 ];
 
-// Generate embedding using OpenAI API
+// Generate embedding using Gemini API (768 dims, matches the DB schema)
 async function generateEmbedding(text) {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify({
-      model: 'text-embedding-3-small',
-      input: text,
-      encoding_format: 'float',
+      content: { parts: [{ text }] },
+      outputDimensionality: 768,
     });
 
     const options = {
-      hostname: 'api.openai.com',
-      path: '/v1/embeddings',
+      hostname: 'generativelanguage.googleapis.com',
+      path: `/v1beta/models/gemini-embedding-001:embedContent?key=${GEMINI_API_KEY}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
         'Content-Length': Buffer.byteLength(payload),
       },
     };
@@ -132,12 +130,12 @@ async function generateEmbedding(text) {
         try {
           const response = JSON.parse(data);
           if (response.error) {
-            reject(new Error(`OpenAI API error: ${response.error.message}`));
+            reject(new Error(`Gemini API error: ${response.error.message}`));
           } else {
-            resolve(response.data[0].embedding);
+            resolve(response.embedding.values);
           }
         } catch (e) {
-          reject(new Error(`Failed to parse OpenAI response: ${e.message}`));
+          reject(new Error(`Failed to parse Gemini response: ${e.message}`));
         }
       });
     });

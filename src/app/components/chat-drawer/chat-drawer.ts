@@ -87,7 +87,7 @@ export class ChatDrawer implements AfterViewChecked {
       error: (error: any) => {
         console.error('[Chat] Error:', error);
         this.isLoading = false;
-        this.errorMessage = 'Error al procesar tu pregunta. Intenta de nuevo.';
+        this.errorMessage = error?.message || 'Error al procesar tu pregunta. Intenta de nuevo.';
 
         // Remove placeholder
         if (this.messages[this.messages.length - 1]?.content === 'Escribiendo...') {

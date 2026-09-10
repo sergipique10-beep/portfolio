@@ -80,15 +80,30 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     const responseStream = await streamGroqResponse(fullSystemPrompt, messages);
 
     let totalChars = 0;
-    for await (const chunk of responseStream) {
-      totalChars += chunk.length;
-      res.write(`data: ${JSON.stringify({ chunk })}\n`);
+    try {
+      for await (const chunk of responseStream) {
+        totalChars += chunk.length;
+        res.write(`data: ${JSON.stringify({ chunk })}\n`);
+      }
+    } catch (streamError: any) {
+      // SSE headers (and maybe some chunks) are already sent — can't change the
+      // HTTP status anymore, so degrade gracefully with an error event instead.
+      console.error('Chat endpoint stream error:', streamError);
+      const message = streamError.message || 'Error generando la respuesta. Intenta de nuevo.';
+      res.write(`data: ${JSON.stringify({ error: message })}\n`);
+      return res.end();
     }
 
     res.write(`data: ${JSON.stringify({ done: true, chunksUsed: similarChunks.length })}\n`);
     res.end();
   } catch (error: any) {
     console.error('Chat endpoint error:', error);
+
+    if (res.headersSent) {
+      // Already streaming SSE — can't change status, degrade gracefully instead.
+      res.write(`data: ${JSON.stringify({ error: error.message || 'Error procesando tu pregunta.' })}\n`);
+      return res.end();
+    }
 
     if (error.statusCode) {
       const statusCode = error.statusCode;
