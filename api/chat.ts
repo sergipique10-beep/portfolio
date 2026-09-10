@@ -3,6 +3,7 @@ import { validateMessage, validateChatHistory } from './utils/validation';
 import { checkRateLimit, extractClientIp, RateLimitError } from './middleware/rateLimit';
 import { generateEmbedding, streamGroqResponse } from './utils/llm';
 import { searchSimilar } from './utils/supabase';
+import { applyCors } from './utils/cors';
 
 const SYSTEM_PROMPT = `Eres un asistente RAG sobre Sergi Piqué, un profesional especializado en IA, backend, y full-stack development.
 Tu objetivo es responder preguntas sobre su experiencia, habilidades, proyectos, y personalidad usando la información del knowledge base.
@@ -15,6 +16,8 @@ Instrucciones:
 5. Personaliza las respuestas con detalles del CV, proyectos, y perfil de Sergi.`;
 
 async function handler(req: VercelRequest, res: VercelResponse) {
+  if (applyCors(req, res)) return;
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

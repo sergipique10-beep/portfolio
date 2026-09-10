@@ -7,6 +7,10 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
+// The RAG backend only runs on Vercel (serverless functions) — Render only
+// hosts the static frontend build, so it must call this cross-origin.
+const API_BASE_URL = 'https://portfolio-ecru-iota-08wjw81j5u.vercel.app';
+
 @Injectable({ providedIn: 'root' })
 export class RagService {
   // Send message to the RAG backend (embeddings + similarity search + Groq
@@ -15,7 +19,7 @@ export class RagService {
     return new Observable((subscriber) => {
       const controller = new AbortController();
 
-      fetch('/api/chat', {
+      fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
