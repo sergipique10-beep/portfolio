@@ -1,5 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { ChatMessage } from '../../../services/rag.service';
 
 @Component({
@@ -8,7 +11,8 @@ import { ChatMessage } from '../../../services/rag.service';
   imports: [CommonModule],
   template: `
     <div class="message" [class.user]="!isAssistant" [class.assistant]="isAssistant">
-      <div class="message-content">{{ message.content }}</div>
+      <div class="message-content" *ngIf="isAssistant" [innerHTML]="renderedContent"></div>
+      <div class="message-content" *ngIf="!isAssistant">{{ message.content }}</div>
       <div class="message-time">{{ formatTime(message.timestamp) }}</div>
     </div>
   `,
@@ -17,6 +21,13 @@ import { ChatMessage } from '../../../services/rag.service';
 export class ChatMessageItem {
   @Input() message!: ChatMessage;
   @Input() isAssistant = false;
+
+  constructor(private sanitizer: DomSanitizer) {}
+
+  get renderedContent(): SafeHtml {
+    const html = marked.parse(this.message.content, { async: false, breaks: true }) as string;
+    return this.sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(html));
+  }
 
   formatTime(date: Date): string {
     return new Date(date).toLocaleTimeString('es-ES', {
