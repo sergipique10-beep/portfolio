@@ -1,0 +1,63 @@
+<section id="certifications" class="section section--dark">
+  <div class="container">
+    <div class="section__head anim">
+      <span class="section__num">04</span>
+      <h2 class="section__title">Certificaciones</h2>
+    </div>
+
+    <div class="cert-marquee anim">
+      <div class="cert-track">
+      @for (cert of certifications; track cert.title) {
+        <article class="cert-card" [style.--accent]="cert.accent">
+          <div class="cert-card__image">
+            @if (cert.image) {
+              <img [src]="cert.image" [alt]="cert.title" loading="lazy" />
+            } @else {
+              <span class="cert-card__fallback">{{ cert.issuer }}</span>
+            }
+          </div>
+          <div class="cert-card__body">
+            <p class="cert-card__title">{{ cert.title }}</p>
+            <p class="cert-card__meta">
+              {{ cert.issuer }}
+              @if (cert.date) {
+                <span> · {{ cert.date }}</span>
+              }
+            </p>
+            <p class="cert-card__desc">{{ cert.desc }}</p>
+            <a class="cert-card__link" [href]="cert.link" target="_blank" rel="noopener">
+              Ver credencial
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </a>
+          </div>
+        </article>
+      }
+      @for (cert of certifications; track cert.title; let i = $index) {
+        <article class="cert-card" aria-hidden="true" [style.--accent]="cert.accent">
+          <div class="cert-card__image">
+            @if (cert.image) {
+              <img [src]="cert.image" [alt]="cert.title" loading="lazy" />
+            } @else {
+              <span class="cert-card__fallback">{{ cert.issuer }}</span>
+            }
+          </div>
+          <div class="cert-card__body">
+            <p class="cert-card__title">{{ cert.title }}</p>
+            <p class="cert-card__meta">
+              {{ cert.issuer }}
+              @if (cert.date) {
+                <span> · {{ cert.date }}</span>
+              }
+            </p>
+            <p class="cert-card__desc">{{ cert.desc }}</p>
+            <a class="cert-card__link" [href]="cert.link" target="_blank" rel="noopener" tabindex="-1">
+              Ver credencial
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </a>
+          </div>
+        </article>
+      }
+      </div>
+    </div>
+  </div>
+</section>

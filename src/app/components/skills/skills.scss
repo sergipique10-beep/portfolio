@@ -26,11 +26,15 @@
 
 .skills {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem 2rem;
 
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   @media (max-width: 600px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -44,26 +48,82 @@
   margin-bottom: 0.75rem;
 }
 
-.skill-group__items {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem;
+.skill-marquee {
+  overflow: hidden;
+  padding-top: 2.75rem;
+  margin: 0 -0.75rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
 }
 
-.skill-tag {
-  display: inline-flex;
+.skill-group__items {
+  display: flex;
+  gap: 0.6rem;
+  width: max-content;
+  animation: skillMarquee 22s linear infinite;
+
+  .skill-marquee--reverse & {
+    animation-direction: reverse;
+  }
+
+  .skill-marquee:hover & {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes skillMarquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.skill-icon {
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
+  flex: none;
+  width: 3.2rem;
+  height: 3.2rem;
+  padding: 0;
   border: 1px solid $grey-border;
-  padding: 0.3rem 0.65rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.02em;
-  border-radius: 2px;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   transition: all 0.2s $ease;
 
-  &:hover {
-    border-color: $white;
+  &:hover,
+  &.is-revealed {
+    border-color: #d4af37;
     background: $grey-dim;
+    transform: scale(1.1);
+    z-index: 1;
+
+    .skill-icon__tooltip {
+      opacity: 1;
+      transform: translate(-50%, -4px);
+    }
   }
+}
+
+.skill-icon__tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 2px);
+  white-space: nowrap;
+  background: #0c0c0c;
+  border: 1px solid $grey-border;
+  color: $white;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  padding: 0.3rem 0.55rem;
+  border-radius: 3px;
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s $ease, transform 0.2s $ease;
 }

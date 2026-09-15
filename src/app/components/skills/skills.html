@@ -20,13 +20,33 @@
       @for (group of skillGroups; track group.label; let i = $index) {
         <div class="skill-group anim anim--scale" [style.transition-delay]="(i * 0.15) + 's'">
           <h3 class="skill-group__label">{{ group.label }}</h3>
-          <div class="skill-group__items">
-            @for (item of group.items; track item) {
-              <span class="skill-tag">
-                <app-tech-icon [name]="item"></app-tech-icon>
-                <span class="skill-tag__label">{{ item }}</span>
-              </span>
-            }
+          <div class="skill-marquee" [class.skill-marquee--reverse]="i % 2 === 1">
+            <div class="skill-group__items">
+              @for (item of group.items; track item) {
+                <button
+                  type="button"
+                  class="skill-icon"
+                  [class.is-revealed]="revealedSkill() === item"
+                  (click)="toggleSkill(item)"
+                >
+                  <app-tech-icon [name]="item"></app-tech-icon>
+                  <span class="skill-icon__tooltip">{{ item }}</span>
+                </button>
+              }
+              @for (item of group.items; track item; let dupIndex = $index) {
+                <button
+                  type="button"
+                  class="skill-icon"
+                  aria-hidden="true"
+                  tabindex="-1"
+                  [class.is-revealed]="revealedSkill() === item"
+                  (click)="toggleSkill(item)"
+                >
+                  <app-tech-icon [name]="item"></app-tech-icon>
+                  <span class="skill-icon__tooltip">{{ item }}</span>
+                </button>
+              }
+            </div>
           </div>
         </div>
       }

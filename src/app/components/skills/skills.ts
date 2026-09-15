@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, AfterViewInit, OnDestroy, inject, signal } from '@angular/core';
 import { TechIcon } from '../tech-icon/tech-icon';
 
 interface SkillGroup {
@@ -37,6 +37,13 @@ export class Skills implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.observer?.disconnect();
+  }
+
+  // En móvil no hay :hover fiable, así que el tap revela el tooltip vía este signal.
+  readonly revealedSkill = signal<string | null>(null);
+
+  toggleSkill(item: string) {
+    this.revealedSkill.update(current => (current === item ? null : item));
   }
 
   private loadModelViewer() {

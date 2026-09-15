@@ -5,6 +5,7 @@ import { Hero } from './components/hero/hero';
 import { About } from './components/about/about';
 import { Skills } from './components/skills/skills';
 import { Projects } from './components/projects/projects';
+import { Certifications } from './components/certifications/certifications';
 import { Contact } from './components/contact/contact';
 import { Footer } from './components/footer/footer';
 import { Babysharky } from './components/babysharky/babysharky';
@@ -12,7 +13,7 @@ import { ChatDrawer } from './components/chat-drawer/chat-drawer';
 
 @Component({
   selector: 'app-root',
-  imports: [Intro, Nav, Hero, About, Skills, Projects, Contact, Footer, Babysharky, ChatDrawer],
+  imports: [Intro, Nav, Hero, About, Skills, Projects, Certifications, Contact, Footer, Babysharky, ChatDrawer],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

@@ -22,8 +22,25 @@
         </p>
       </div>
       <div class="about__traits">
-        @for (trait of traits; track trait; let i = $index) {
-          <span class="trait anim" [style.transition-delay]="(i * 0.15) + 's'">{{ trait }}</span>
+        @for (trait of traits; track trait.label; let i = $index) {
+          <div class="trait anim" [style.transition-delay]="(i * 0.15) + 's'">
+            <div class="trait__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                @if (trait.icon === 'grid') {
+                  <rect x="4" y="4" width="7" height="7" rx="1"/>
+                  <rect x="13" y="4" width="7" height="7" rx="1"/>
+                  <rect x="4" y="13" width="7" height="7" rx="1"/>
+                  <rect x="13" y="13" width="7" height="7" rx="1"/>
+                } @else {
+                  <path [attr.d]="trait.icon"/>
+                }
+              </svg>
+            </div>
+            <div>
+              <p class="trait__label">{{ trait.label }}</p>
+              <p class="trait__desc">{{ trait.desc }}</p>
+            </div>
+          </div>
         }
       </div>
     </div>
