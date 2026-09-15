@@ -3,23 +3,14 @@
     <div class="section__head anim">
       <span class="section__num">03</span>
       <h2 class="section__title">Habilidades</h2>
-      <!-- Logo 3D, acento dorado junto al título en vez de dentro de un grupo. -->
-      <model-viewer
-        class="section__logo"
-        src="logo.glb"
-        alt="Logo 3D — trabajo asistido por IA"
-        auto-rotate
-        auto-rotate-delay="0"
-        rotation-per-second="35deg"
-        interaction-prompt="none"
-        disable-zoom
-        shadow-intensity="0"
-        exposure="1.1"></model-viewer>
     </div>
     <div class="skills">
       @for (group of skillGroups; track group.label; let i = $index) {
         <div class="skill-group anim anim--scale" [style.transition-delay]="(i * 0.15) + 's'">
-          <h3 class="skill-group__label">{{ group.label }}</h3>
+          <h3 class="skill-group__label" [style.--accent]="group.accent">
+            <span class="skill-group__marker"></span>
+            {{ group.label }}
+          </h3>
           <div class="skill-marquee" [class.skill-marquee--reverse]="i % 2 === 1">
             <div class="skill-group__items">
               @for (item of group.items; track item) {
