@@ -14,15 +14,17 @@
   justify-content: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   animation: levitate 4s ease-in-out infinite;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  backface-visibility: hidden;
 
   &:hover {
-    transform: scale(1.08);
     border-color: #d4af37;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(212, 175, 55, 0.4);
   }
 
   &:active {
+    animation-play-state: paused;
     transform: scale(0.95);
   }
 }
