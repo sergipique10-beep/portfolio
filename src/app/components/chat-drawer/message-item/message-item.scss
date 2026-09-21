@@ -1,17 +1,18 @@
+@use 'tokens' as *;
+
 .message {
   display: flex;
   gap: 8px;
   margin-bottom: 4px;
-  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUp 0.3s $ease;
 
   &.user {
     justify-content: flex-end;
 
     .message-content {
-      background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
-      color: white;
-      border-radius: 20px 20px 4px 20px;
-      box-shadow: 0 4px 12px rgba(0, 217, 255, 0.2);
+      background: $white;
+      color: $black;
+      border-radius: 2px;
       // Plain text, no markdown parsing — preserve the user's line breaks.
       white-space: pre-wrap;
     }
@@ -21,11 +22,10 @@
     justify-content: flex-start;
 
     .message-content {
-      background: white;
-      color: #333;
-      border-radius: 20px 20px 20px 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      border: 1px solid #e8e8e8;
+      background: transparent;
+      color: $grey-text;
+      border-radius: 2px;
+      border: 1px solid $grey-border;
     }
   }
 }
@@ -36,15 +36,8 @@
   word-wrap: break-word;
   font-size: 14px;
   line-height: 1.5;
-  font-weight: 500;
-  transition: all 0.2s;
+  font-weight: 400;
 
-  &:hover {
-    transform: translateY(-1px);
-  }
-
-  // Markdown content from the assistant (see message-item.ts) is rendered as
-  // real HTML, so it needs its own spacing rules on top of pre-wrap above.
   p {
     margin: 0 0 8px;
 
@@ -75,8 +68,9 @@
   h2,
   h3,
   h4 {
+    font-family: $font-head;
     margin: 12px 0 8px;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.3;
 
     &:first-child {
@@ -96,21 +90,44 @@
   }
 
   code {
-    background: rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.08);
     padding: 1px 4px;
-    border-radius: 4px;
+    border-radius: 2px;
     font-size: 13px;
   }
 
   a {
-    color: inherit;
+    color: #d4af37;
     text-decoration: underline;
+  }
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+
+  span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: $grey-mid;
+    animation: typingBounce 1.2s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
   }
 }
 
 .message-time {
   font-size: 11px;
-  color: #aaa;
+  color: $grey-mid;
   margin-top: 2px;
   padding: 0 4px;
   display: flex;
@@ -125,5 +142,18 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
   }
 }

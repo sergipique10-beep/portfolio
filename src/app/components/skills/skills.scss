@@ -92,11 +92,10 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s $ease;
 
-  &:hover,
-  &.is-revealed {
+  &:hover {
     border-color: #d4af37;
     background: $grey-dim;
     transform: scale(1.1);

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { TechIcon } from '../tech-icon/tech-icon';
 
 interface SkillGroup {
@@ -14,13 +14,6 @@ interface SkillGroup {
   styleUrl: './skills.scss'
 })
 export class Skills {
-  // En móvil no hay :hover fiable, así que el tap revela el tooltip vía este signal.
-  readonly revealedSkill = signal<string | null>(null);
-
-  toggleSkill(item: string) {
-    this.revealedSkill.update(current => (current === item ? null : item));
-  }
-
   skillGroups: SkillGroup[] = [
     {
       label: 'Inteligencia Artificial',

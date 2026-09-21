@@ -11,7 +11,10 @@ import { ChatMessage } from '../../../services/rag.service';
   imports: [CommonModule],
   template: `
     <div class="message" [class.user]="!isAssistant" [class.assistant]="isAssistant">
-      <div class="message-content" *ngIf="isAssistant" [innerHTML]="renderedContent"></div>
+      <div class="message-content" *ngIf="isAssistant && isTyping">
+        <span class="typing-indicator"><span></span><span></span><span></span></span>
+      </div>
+      <div class="message-content" *ngIf="isAssistant && !isTyping" [innerHTML]="renderedContent"></div>
       <div class="message-content" *ngIf="!isAssistant">{{ message.content }}</div>
       <div class="message-time">{{ formatTime(message.timestamp) }}</div>
     </div>
@@ -23,6 +26,10 @@ export class ChatMessageItem {
   @Input() isAssistant = false;
 
   constructor(private sanitizer: DomSanitizer) {}
+
+  get isTyping(): boolean {
+    return this.message.content === 'Escribiendo...';
+  }
 
   get renderedContent(): SafeHtml {
     const html = marked.parse(this.message.content, { async: false, breaks: true }) as string;

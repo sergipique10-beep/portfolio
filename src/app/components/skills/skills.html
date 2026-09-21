@@ -14,28 +14,16 @@
           <div class="skill-marquee" [class.skill-marquee--reverse]="i % 2 === 1">
             <div class="skill-group__items">
               @for (item of group.items; track item) {
-                <button
-                  type="button"
-                  class="skill-icon"
-                  [class.is-revealed]="revealedSkill() === item"
-                  (click)="toggleSkill(item)"
-                >
+                <div class="skill-icon">
                   <app-tech-icon [name]="item"></app-tech-icon>
                   <span class="skill-icon__tooltip">{{ item }}</span>
-                </button>
+                </div>
               }
               @for (item of group.items; track item; let dupIndex = $index) {
-                <button
-                  type="button"
-                  class="skill-icon"
-                  aria-hidden="true"
-                  tabindex="-1"
-                  [class.is-revealed]="revealedSkill() === item"
-                  (click)="toggleSkill(item)"
-                >
+                <div class="skill-icon" aria-hidden="true">
                   <app-tech-icon [name]="item"></app-tech-icon>
                   <span class="skill-icon__tooltip">{{ item }}</span>
-                </button>
+                </div>
               }
             </div>
           </div>
