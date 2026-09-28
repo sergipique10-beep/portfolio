@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 
 interface Certification {
   title: string;
@@ -15,7 +15,17 @@ interface Certification {
   templateUrl: './certifications.html',
   styleUrl: './certifications.scss'
 })
-export class Certifications {
+export class Certifications implements AfterViewInit, OnDestroy {
+  @ViewChild('track') private trackRef!: ElementRef<HTMLElement>;
+
+  private readonly speed = 65; // px/s
+  private offset = 0;
+  private nudge = 0;
+  private paused = false;
+  private lastTime = 0;
+  private frame = 0;
+  private autoplay = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   certifications: Certification[] = [
     {
       title: 'Junior FullStack Developer',
@@ -107,4 +117,41 @@ export class Certifications {
       accent: '#D97757'
     }
   ];
+
+  ngAfterViewInit() {
+    this.frame = requestAnimationFrame(t => this.tick(t));
+  }
+
+  ngOnDestroy() {
+    cancelAnimationFrame(this.frame);
+  }
+
+  setPaused(paused: boolean) {
+    this.paused = paused;
+  }
+
+  move(dir: 1 | -1) {
+    const card = this.trackRef.nativeElement.querySelector<HTMLElement>('.cert-card');
+    if (!card) return;
+    const gap = parseFloat(getComputedStyle(this.trackRef.nativeElement).columnGap) || 0;
+    this.nudge += dir * (card.offsetWidth + gap);
+  }
+
+  private tick(time: number) {
+    const dt = this.lastTime ? Math.min((time - this.lastTime) / 1000, 0.1) : 0;
+    this.lastTime = time;
+
+    if (this.autoplay && !this.paused) this.offset += this.speed * dt;
+    const step = this.nudge * Math.min(1, dt * 10);
+    this.offset += step;
+    this.nudge -= step;
+
+    // The track holds the list twice, so wrapping at half its width is seamless
+    const track = this.trackRef.nativeElement;
+    const half = track.scrollWidth / 2;
+    if (half > 0) this.offset = ((this.offset % half) + half) % half;
+    track.style.transform = `translateX(${-this.offset}px)`;
+
+    this.frame = requestAnimationFrame(t => this.tick(t));
+  }
 }

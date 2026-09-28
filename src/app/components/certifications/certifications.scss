@@ -10,16 +10,40 @@
   display: flex;
   gap: 1.5rem;
   width: max-content;
-  animation: certMarquee 48s linear infinite;
-
-  .cert-marquee:hover & {
-    animation-play-state: paused;
-  }
+  will-change: transform;
 }
 
-@keyframes certMarquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+.cert-carousel {
+  position: relative;
+}
+
+.cert-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $grey-border;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: $white;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: border-color 0.2s $ease, color 0.2s $ease;
+
+  svg { width: 1.1rem; height: 1.1rem; }
+
+  &:hover,
+  &:focus-visible {
+    border-color: #d4af37;
+    color: #d4af37;
+  }
+
+  &--prev { left: -0.5rem; }
+  &--next { right: -0.5rem; }
 }
 
 .cert-card {

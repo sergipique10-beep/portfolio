@@ -5,8 +5,12 @@
       <h2 class="section__title">Certificaciones</h2>
     </div>
 
-    <div class="cert-marquee anim">
-      <div class="cert-track">
+    <div class="cert-carousel anim">
+      <button class="cert-arrow cert-arrow--prev" type="button" aria-label="Certificación anterior" (click)="move(-1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    <div class="cert-marquee" (mouseenter)="setPaused(true)" (mouseleave)="setPaused(false)" (focusin)="setPaused(true)" (focusout)="setPaused(false)">
+      <div class="cert-track" #track>
       @for (cert of certifications; track cert.title) {
         <article class="cert-card" [style.--accent]="cert.accent">
           <div class="cert-card__image">
@@ -58,6 +62,10 @@
         </article>
       }
       </div>
+    </div>
+      <button class="cert-arrow cert-arrow--next" type="button" aria-label="Certificación siguiente" (click)="move(1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>
   </div>
 </section>
