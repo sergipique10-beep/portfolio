@@ -1,7 +1,9 @@
 <section id="hero" class="hero">
-  @defer (when showVisual()) {
-    <app-hero-wave></app-hero-wave>
-  }
+  <video #video class="hero__video" autoplay muted loop playsinline preload="metadata" aria-hidden="true"
+    poster="/hero/hero-poster.jpg">
+    <source src="/hero/hero-720.mp4" type="video/mp4" media="(max-width: 860px)">
+    <source src="/hero/hero-1080.mp4" type="video/mp4">
+  </video>
   <div class="hero__noise"></div>
   <div class="hero__lines">
     @for (i of [0,1,2,3,4,5]; track i) {

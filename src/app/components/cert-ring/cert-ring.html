@@ -1,0 +1,66 @@
+<div class="cert-ring">
+  <div class="stage" #stage
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp()"
+    (pointercancel)="onPointerUp()"
+    (wheel)="onWheel($event)">
+    <svg class="progress" [attr.viewBox]="'0 0 ' + size() + ' ' + size()" aria-hidden="true">
+      <circle class="progress__track" [attr.cx]="size() / 2" [attr.cy]="size() / 2" [attr.r]="arcRadius()" />
+      <circle class="progress__value" [attr.cx]="size() / 2" [attr.cy]="size() / 2" [attr.r]="arcRadius()"
+        pathLength="100" [style.stroke-dashoffset]="100 - progress()"
+        [attr.transform]="'rotate(-90 ' + size() / 2 + ' ' + size() / 2 + ')'" />
+    </svg>
+
+    <div class="ring" role="listbox" aria-orientation="horizontal" [attr.aria-label]="label()"
+      [style.transform]="'rotate(' + rotation() + 'deg)'">
+      @for (cert of certifications(); track cert.id; let i = $index) {
+        <div #option class="badge" role="option"
+          [class.badge--active]="i === active()"
+          [attr.aria-selected]="i === active()"
+          [attr.aria-label]="cert.title + ', ' + cert.issuer"
+          [tabindex]="i === active() ? 0 : -1"
+          [style.transform]="badgeTransform(i)"
+          (click)="onBadgeClick(i)"
+          (keydown)="onKeydown($event)">
+          <img [src]="cert.logo" alt="" draggable="false" />
+        </div>
+      }
+    </div>
+
+    <span class="counter" aria-hidden="true">{{ counter() }}</span>
+  </div>
+
+  <div class="panel" aria-live="polite">
+    @if (current(); as cert) {
+      @for (c of [cert]; track c.id) {
+        <article class="panel__content" animate.enter="panel-in" animate.leave="panel-out">
+          @if (c.image) {
+            <img class="panel__image" [src]="c.image" alt="" />
+          }
+          <div class="panel__head">
+            <img class="panel__logo" [src]="c.logo" alt="" />
+            <p class="panel__issuer">
+              {{ c.issuer }}
+              @if (c.date) {
+                <span class="panel__date">· {{ c.date }}</span>
+              }
+            </p>
+          </div>
+          <h3 class="panel__title">{{ c.title }}</h3>
+          @if (c.skills.length) {
+            <ul class="panel__skills" aria-label="Skills">
+              @for (skill of c.skills; track skill) {
+                <li class="chip">{{ skill }}</li>
+              }
+            </ul>
+          }
+          <a class="panel__cta" [href]="c.credentialUrl" target="_blank" rel="noopener">
+            Ver credencial
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+          </a>
+        </article>
+      }
+    }
+  </div>
+</div>

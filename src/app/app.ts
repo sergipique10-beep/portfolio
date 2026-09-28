@@ -21,22 +21,38 @@ export class App implements AfterViewInit, OnDestroy {
   @ViewChild(ChatDrawer) chatDrawer?: ChatDrawer;
 
   private observer?: IntersectionObserver;
+  private mutations?: MutationObserver;
   chatDrawerOpen = false;
 
   // Observa todos los .anim del documento (de cualquier sección) y los revela
   // al entrar en viewport. Corre tras renderizarse los componentes hijos.
   ngAfterViewInit() {
-    this.observer = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       entries => entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add('visible');
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
       }),
       { threshold: 0.12 }
     );
-    document.querySelectorAll('.anim').forEach(el => this.observer!.observe(el));
+    this.observer = observer;
+    document.querySelectorAll('.anim').forEach(el => observer.observe(el));
+
+    // Los .anim que aparecen más tarde (p. ej. la escena de Spline, que solo se
+    // monta al ensanchar la ventana) también hay que observarlos, o se quedan
+    // con opacity: 0 para siempre.
+    this.mutations = new MutationObserver(records => records.forEach(r => r.addedNodes.forEach(node => {
+      if (!(node instanceof Element)) return;
+      if (node.matches('.anim')) observer.observe(node);
+      node.querySelectorAll('.anim').forEach(el => observer.observe(el));
+    })));
+    this.mutations.observe(document.body, { childList: true, subtree: true });
   }
 
   ngOnDestroy() {
     this.observer?.disconnect();
+    this.mutations?.disconnect();
   }
 
   toggleChat() {

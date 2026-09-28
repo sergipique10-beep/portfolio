@@ -1,0 +1,69 @@
+<div class="stage" #stage tabindex="0" role="region" aria-roledescription="carrusel"
+  [attr.aria-label]="label() + '. Flechas izquierda y derecha para girar, Enter para abrir la credencial del frente.'"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event, true)"
+  (wheel)="onWheel($event)"
+  (keydown)="onKeydown($event)"
+  (mouseenter)="hovered.set(true)"
+  (mouseleave)="hovered.set(false)"
+  (focus)="focused.set(true)"
+  (blur)="focused.set(false)">
+  <div class="viewport" #viewport>
+    <div class="ring" #ring>
+      @for (cert of certifications(); track cert.id; let i = $index) {
+        <article #card class="card"
+          [attr.data-index]="i"
+          [attr.aria-hidden]="i !== front()"
+          [class.card--light]="i % 2 === 1"
+          [class.card--front]="i === front()"
+          [style.--accent]="cert.color"
+          [style.transform]="cardTransform(i)">
+          @if (cert.image) {
+            <img class="card__image" [src]="cert.image" alt="" draggable="false" />
+          }
+          <div class="card__top">
+            <img class="card__logo" [src]="cert.logo" alt="" draggable="false" />
+            <span class="card__category">{{ cert.category }}</span>
+          </div>
+          <p class="card__title">{{ cert.title }}</p>
+          <p class="card__meta">
+            {{ cert.issuer }}
+            @if (cert.year) {
+              <span class="card__year">· {{ cert.year }}</span>
+            }
+          </p>
+          <span class="card__shade" aria-hidden="true"></span>
+        </article>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Durante el autogiro no se anuncia nada, para no interrumpir al lector de pantalla cada pocos segundos -->
+<p class="now" [attr.aria-live]="autoRotating() ? 'off' : 'polite'">
+  @if (current(); as cert) {
+    <span class="now__label">Al frente</span>
+    <span class="now__title">{{ cert.title }}</span>
+    <span class="now__issuer">{{ cert.issuer }}</span>
+  }
+</p>
+
+<div class="controls">
+  <button class="control control--round" type="button" aria-label="Anterior" (click)="prev()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="control" type="button" [attr.aria-pressed]="paused()" (click)="togglePause()">
+    @if (paused()) {
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      Reanudar
+    } @else {
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+      Pausar
+    }
+  </button>
+  <button class="control control--round" type="button" aria-label="Siguiente" (click)="next()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>

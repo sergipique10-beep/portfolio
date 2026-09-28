@@ -1,0 +1,255 @@
+$bg: #0c111b;
+$surface: #141b28;
+$accent: #7b93ff;
+$text: #e6ebf3;
+$muted: rgba(230, 235, 243, 0.6);
+$ring-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+$mono: 'JetBrains Mono', 'Courier New', monospace;
+
+:host {
+  display: block;
+  padding: 2rem 1rem 2.5rem;
+  border-radius: 20px;
+  background: $bg;
+  color: $text;
+}
+
+.cert-ring {
+  position: relative;
+  width: min(100%, 600px);
+  margin: 0 auto;
+}
+
+// ─── Anillo ──────────────────────────────────────────────────────────────────
+.stage {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba($surface, 0.9) 0%, rgba($surface, 0.35) 55%, transparent 72%);
+  touch-action: pan-y; // el arrastre horizontal gira el anillo sin bloquear el scroll vertical
+  user-select: none;
+  cursor: grab;
+
+  :host(.is-dragging) & { cursor: grabbing; }
+}
+
+.progress {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  pointer-events: none;
+}
+
+.progress__track {
+  stroke: rgba($text, 0.08);
+  stroke-width: 2;
+}
+
+.progress__value {
+  stroke: $accent;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  transition: stroke-dashoffset 700ms $ring-ease;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  transition: transform 700ms $ring-ease;
+}
+
+.badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--badge);
+  height: var(--badge);
+  margin: calc(var(--badge) / -2) 0 0 calc(var(--badge) / -2);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba($text, 0.25);
+  // Cara clara para que se lean igual logos oscuros y claros
+  background: $text;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  opacity: 0.55;
+  cursor: pointer;
+  transition: transform 700ms $ring-ease, opacity 300ms ease, box-shadow 300ms ease;
+
+  img {
+    width: 66%;
+    height: 66%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  &:hover { opacity: 0.85; }
+
+  &:focus-visible {
+    outline: 2px solid $text;
+    outline-offset: 4px;
+  }
+}
+
+.badge--active {
+  opacity: 1;
+  box-shadow: 0 0 0 2px $accent, 0 0 22px 4px rgba($accent, 0.55), 0 6px 18px rgba(0, 0, 0, 0.45);
+
+  &:hover { opacity: 1; }
+}
+
+// Mientras se arrastra, el anillo sigue al puntero sin retraso.
+:host(.is-dragging) {
+  .ring,
+  .badge { transition: opacity 300ms ease, box-shadow 300ms ease; }
+}
+
+.counter {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: $mono;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: $muted;
+}
+
+// ─── Panel central ───────────────────────────────────────────────────────────
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  pointer-events: none; // deja arrastrar el anillo por fuera de la tarjeta
+}
+
+.panel__content {
+  grid-area: 1 / 1; // la saliente y la entrante se superponen en el fundido cruzado
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.panel__image {
+  width: 100%;
+  aspect-ratio: 1138 / 862;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba($text, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.panel__logo {
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+  border-radius: 50%;
+  background: $text;
+  object-fit: contain;
+}
+
+.panel__issuer {
+  font-size: 0.72rem;
+  color: $muted;
+}
+
+.panel__date { font-family: $mono; }
+
+.panel__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: $text;
+}
+
+.panel__skills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba($accent, 0.14);
+  color: $accent;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.panel__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: $accent;
+  color: $bg;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+
+  svg { width: 0.85rem; height: 0.85rem; }
+
+  &:hover { background: #94a8ff; }
+
+  &:focus-visible {
+    outline: 2px solid $text;
+    outline-offset: 3px;
+  }
+}
+
+.panel-in { animation: panel-fade 250ms ease both; }
+.panel-out { animation: panel-fade 250ms ease reverse both; }
+
+@keyframes panel-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// ─── Móvil: anillo más pequeño y panel debajo ────────────────────────────────
+@media (max-width: 599px) {
+  :host { padding: 1.5rem 0.5rem 2rem; }
+
+  .cert-ring { width: min(100%, 340px); }
+
+  .panel {
+    position: static;
+    aspect-ratio: auto;
+    margin-top: 3rem;
+  }
+
+  .panel__content { width: 100%; max-width: 300px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring,
+  .badge,
+  .progress__value { transition: none; }
+
+  .panel-in,
+  .panel-out { animation: none; }
+}

@@ -8,8 +8,8 @@
   overflow: hidden;
   padding: 0 2rem;
 
-  // Oscurece el lado del texto para que el nombre siga siendo legible incluso
-  // cuando el sol del océano cae justo detrás (fondo muy claro en esa zona).
+  // Oscurece el lado del texto para que el nombre siga siendo legible sobre
+  // los haces de luz del vídeo.
   &::after {
     content: "";
     position: absolute;
@@ -17,6 +17,21 @@
     pointer-events: none;
     background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.2) 45%, transparent 68%);
   }
+}
+
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  pointer-events: none;
+  user-select: none;
+  background: #03060c;
+
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
 }
 
 .hero__lines {

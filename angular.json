@@ -56,7 +56,9 @@
               "src/styles.scss"
             ],
             "stylePreprocessorOptions": {
-              "includePaths": ["src/styles"]
+              "includePaths": [
+                "src/styles"
+              ]
             }
           },
           "configurations": {
@@ -94,6 +96,13 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "tsconfig.spec.json",
+            "runner": "vitest"
+          }
         }
       }
     }

@@ -1,0 +1,42 @@
+<div class="spotlight" role="group" aria-roledescription="carrusel" [attr.aria-label]="label()">
+  <div class="spotlight__rail" #rail>
+    <ul class="spotlight__track">
+      @for (item of items(); track item.title; let i = $index) {
+        @let open = i === active();
+        <li class="frame" [class.frame--active]="open" [style.width.px]="widthOf(i)" [style.z-index]="zIndexOf(i)">
+          <button #photo type="button" class="frame__photo"
+            [attr.aria-pressed]="open"
+            [attr.aria-label]="item.title + ', ' + item.meta"
+            [tabindex]="open ? 0 : -1"
+            (click)="select(i)"
+            (keydown)="onKeydown($event, i)">
+            <img [src]="item.image" alt="" [style.height.px]="sizes().imageHeight"
+              draggable="false" (load)="onLoad($event, i)" />
+          </button>
+          <div class="frame__caption" [attr.aria-hidden]="!open" [attr.inert]="open ? null : ''">
+            <div class="frame__caption-inner" [style.width.px]="openWidth(i) - 2 * pad">
+              <p class="frame__title">{{ item.title }}</p>
+              <p class="frame__meta">{{ item.meta }}</p>
+              @if (item.link) {
+                <a class="frame__link" [href]="item.link" target="_blank" rel="noopener">
+                  {{ item.linkLabel ?? 'Ver más' }}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+                </a>
+              }
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="spotlight__controls">
+    <button class="spotlight__arrow" type="button" aria-label="Anterior" [disabled]="active() === 0" (click)="select(active() - 1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <span class="spotlight__count" aria-live="polite">{{ active() + 1 }} / {{ items().length }}</span>
+    <button class="spotlight__arrow" type="button" aria-label="Siguiente" [disabled]="active() === items().length - 1" (click)="select(active() + 1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
