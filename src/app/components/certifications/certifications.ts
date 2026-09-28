@@ -18,6 +18,15 @@ interface Certification {
 export class Certifications {
   certifications: Certification[] = [
     {
+      title: 'Junior FullStack Developer',
+      issuer: 'thePower Business School',
+      date: 'Sep 2026',
+      desc: 'Formación completa en desarrollo Frontend, JavaScript y Backend. Calificación: Sobresaliente.',
+      image: '/certs/thepower-badge.png',
+      link: 'https://verified.sertifier.com/es/verify/82349806909495/',
+      accent: '#22c55e'
+    },
+    {
       title: 'Microsoft Certified: Azure AI Fundamentals',
       issuer: 'Microsoft',
       date: '',
