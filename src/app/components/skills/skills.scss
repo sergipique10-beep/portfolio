@@ -51,7 +51,9 @@
 .skill-marquee {
   overflow: hidden;
   padding-top: 2.75rem;
-  margin: 0 -0.75rem;
+  // Espacio para que el scale(1.1) del hover no quede recortado por el overflow
+  padding-bottom: 0.25rem;
+  margin: 0 -0.75rem -0.25rem;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   mask-image: linear-gradient(90deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
